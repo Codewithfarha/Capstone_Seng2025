@@ -1,0 +1,8 @@
+{
+  "short_name": "Library Finder",
+  "name": "Library Finder",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0ea5e9",
+  "background_color": "#ffffff"
+}
