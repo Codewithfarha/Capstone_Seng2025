@@ -19,7 +19,7 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-#serviceAccountKey.json
+serviceAccountKey.json
 *-serviceAccountKey.json
 *.pem
 *.p12
