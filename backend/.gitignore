@@ -18,3 +18,9 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+#serviceAccountKey.json
+*-serviceAccountKey.json
+*.pem
+*.p12
+firebase-adminsdk*.json
