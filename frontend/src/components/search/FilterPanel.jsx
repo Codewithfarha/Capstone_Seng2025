@@ -15,13 +15,15 @@ const FilterPanel = ({
 }) => {
   const categories = [
     { value: 'all', label: 'All Categories', icon: '📦' },
-    { value: 'frontend', label: 'Frontend', icon: '🎨' },
-    { value: 'backend', label: 'Backend', icon: '⚙️' },
-    { value: 'database', label: 'Database', icon: '🗄️' },
-    { value: 'utility', label: 'Utility', icon: '🔧' },
-    { value: 'testing', label: 'Testing', icon: '🧪' },
-    { value: 'security', label: 'Security', icon: '🔒' },
-    { value: 'ml-ai', label: 'ML & AI', icon: '🤖' }
+    { value: 'Frontend', label: 'Frontend', icon: '🎨' },
+    { value: 'Backend', label: 'Backend', icon: '⚙️' },
+    { value: 'Database', label: 'Database', icon: '🗄️' },
+    { value: 'Utility', label: 'Utility', icon: '🔧' },
+    { value: 'Testing', label: 'Testing', icon: '🧪' },
+    { value: 'CSS Framework', label: 'CSS Framework', icon: '💅' },
+    { value: 'Machine Learning', label: 'Machine Learning', icon: '🤖' },
+    { value: 'Data Science', label: 'Data Science', icon: '📊' },
+    { value: 'Build Tool', label: 'Build Tools', icon: '🔨' }
   ];
 
   const operatingSystems = [
@@ -164,7 +166,7 @@ const FilterPanel = ({
           <div className="space-y-2">
             {selectedCategory !== 'all' && (
               <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg">
-                <span className="text-sm text-blue-700 capitalize">{selectedCategory}</span>
+                <span className="text-sm text-blue-700">{selectedCategory}</span>
                 <button
                   onClick={() => setSelectedCategory('all')}
                   className="text-blue-500 hover:text-blue-700"

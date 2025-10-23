@@ -23,7 +23,7 @@ const SearchBar = () => {
 
   const hasActiveFilters = searchTerm || selectedCategory !== 'all' || selectedPlatform !== 'all';
 
-  const platforms = ['Windows', 'MacOS', 'Linux'];
+  const platforms = ['windows', 'macos', 'linux'];
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
@@ -31,7 +31,7 @@ const SearchBar = () => {
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         <input
           type="text"
-          placeholder="Search libraries..."
+          placeholder="Search libraries... (Try: 'recat', 'djago', 'expr')"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-12 pr-24 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -55,6 +55,16 @@ const SearchBar = () => {
           </button>
         </div>
       </div>
+
+      {/* Fuzzy Search Indicator */}
+      {searchTerm && searchTerm.length >= 2 && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
+            🔍 Fuzzy Search Active
+          </span>
+          <span className="text-gray-500">Finding results even with typos</span>
+        </div>
+      )}
 
       {showFilters && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
@@ -106,7 +116,7 @@ const SearchBar = () => {
             </span>
           )}
           {selectedPlatform !== 'all' && (
-            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm capitalize">
               {selectedPlatform}
             </span>
           )}

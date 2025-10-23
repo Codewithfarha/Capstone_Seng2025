@@ -13,9 +13,13 @@ const ComparePage = () => {
 
   useEffect(() => {
     const libIds = searchParams.get('libs');
-    if (libIds) {
-      const ids = libIds.split(',').map(id => parseInt(id));
-      const foundLibs = ids.map(id => allLibraries.find(lib => lib.id === id)).filter(Boolean);
+    if (libIds && allLibraries.length > 0) {
+      const ids = libIds.split(',').map(id => id.trim());
+      const foundLibs = ids
+        .map(id => allLibraries.find(lib => lib.id?.toString() === id))
+        .filter(Boolean);
+      
+      console.log('🔍 Comparing libraries:', foundLibs.map(l => l.name));
       setLibraries(foundLibs);
     }
   }, [searchParams, allLibraries]);
@@ -56,13 +60,13 @@ const ComparePage = () => {
             <GitCompare className="w-10 h-10" />
             Compare Libraries
           </h1>
-          <p className="text-gray-600">Side-by-side comparison of library features and specifications</p>
+          <p className="text-gray-600">Side-by-side comparison of {libraries.length} libraries</p>
         </div>
 
         {/* Library Headers */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
           <div className={`grid gap-4 p-6 bg-gradient-to-r from-blue-50 to-purple-50 ${
-            libraries.length === 2 ? 'grid-cols-3' : 'grid-cols-4'
+            libraries.length === 2 ? 'grid-cols-3' : libraries.length === 3 ? 'grid-cols-4' : 'grid-cols-5'
           }`}>
             <div className="font-semibold text-gray-700"></div>
             {libraries.map((lib) => (
@@ -72,7 +76,12 @@ const ComparePage = () => {
                     <Package className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{lib.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3 capitalize">{lib.category}</p>
+                  <p className="text-sm text-gray-600 mb-2">{lib.category}</p>
+                  {lib.rating && (
+                    <div className="text-yellow-500 font-bold mb-3">
+                      ⭐ {lib.rating}
+                    </div>
+                  )}
                   <Link
                     to={`/library/${lib.id}`}
                     className="text-sm text-blue-500 hover:text-blue-600"
@@ -91,7 +100,7 @@ const ComparePage = () => {
         {/* Quick Analysis */}
         <div className="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
           <h3 className="text-xl font-bold text-gray-900 mb-4">📊 Quick Analysis</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">Highest Rated</p>
               <p className="text-lg font-semibold text-gray-900">
@@ -101,13 +110,19 @@ const ComparePage = () => {
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Most Downloaded</p>
+              <p className="text-sm text-gray-600 mb-1">Most Stars</p>
               <p className="text-lg font-semibold text-gray-900">
-                {libraries.reduce((prev, current) => {
-                  const prevDownloads = parseInt(prev.downloads?.replace(/\D/g, '') || 0);
-                  const currentDownloads = parseInt(current.downloads?.replace(/\D/g, '') || 0);
-                  return prevDownloads > currentDownloads ? prev : current;
-                }).name}
+                {libraries.reduce((prev, current) => 
+                  (prev.stars || 0) > (current.stars || 0) ? prev : current
+                ).name}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Most Downloads</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {libraries.reduce((prev, current) => 
+                  (prev.downloads || 0) > (current.downloads || 0) ? prev : current
+                ).name}
               </p>
             </div>
           </div>
