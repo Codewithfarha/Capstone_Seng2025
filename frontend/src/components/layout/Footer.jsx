@@ -59,11 +59,7 @@ const Footer = () => {
                   Statistics
                 </Link>
               </li>
-              <li>
-                <Link to="/login" className="hover:text-primary-400 transition-colors">
-                  Admin Login
-                </Link>
-              </li>
+            
             </ul>
           </div>
 
