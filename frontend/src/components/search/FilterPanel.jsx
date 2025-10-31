@@ -53,13 +53,13 @@ const FilterPanel = ({
       {/* Filter Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-bold text-gray-900">Filters</h3>
+          <Filter className="w-5 h-5 text-gray-700" />
+          <h3 className="text-lg font-bold text-gray-700">Filters</h3>
         </div>
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-gray-700 hover:text-gray-600 font-bold underline"
           >
             Clear All
           </button>
@@ -67,23 +67,23 @@ const FilterPanel = ({
       </div>
 
       {/* Category Filter */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h4 className="text-md font-semibold text-gray-900 mb-4">Category</h4>
+      <div className="bg-white p-6 rounded-xl shadow-md border-2 border-gray-300">
+        <h4 className="text-md font-bold text-gray-700 mb-4">Category</h4>
         <div className="space-y-2">
           {categories.map((category) => (
             <button
               key={category.value}
               onClick={() => setSelectedCategory(category.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
+              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3 font-medium ${
                 selectedCategory === category.value
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md scale-105'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-102'
+                  ? 'bg-gray-700 text-white shadow-lg scale-105 border-2 border-gray-700'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 hover:scale-102 border-2 border-gray-300'
               }`}
             >
               <span className="text-xl">{category.icon}</span>
-              <span className="font-medium">{category.label}</span>
+              <span>{category.label}</span>
               {selectedCategory === category.value && (
-                <span className="ml-auto text-white">✓</span>
+                <span className="ml-auto text-white font-bold">✓</span>
               )}
             </button>
           ))}
@@ -91,23 +91,23 @@ const FilterPanel = ({
       </div>
 
       {/* Operating System Filter */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h4 className="text-md font-semibold text-gray-900 mb-4">Operating System</h4>
+      <div className="bg-white p-6 rounded-xl shadow-md border-2 border-gray-300">
+        <h4 className="text-md font-bold text-gray-700 mb-4">Operating System</h4>
         <div className="space-y-2">
           {operatingSystems.map((os) => (
             <button
               key={os.value}
               onClick={() => setSelectedOS(os.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3 ${
+              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center gap-3 font-medium ${
                 selectedOS === os.value
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md scale-105'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-102'
+                  ? 'bg-gray-700 text-white shadow-lg scale-105 border-2 border-gray-700'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 hover:scale-102 border-2 border-gray-300'
               }`}
             >
               <span className="text-xl">{os.icon}</span>
-              <span className="font-medium">{os.label}</span>
+              <span>{os.label}</span>
               {selectedOS === os.value && (
-                <span className="ml-auto text-white">✓</span>
+                <span className="ml-auto text-white font-bold">✓</span>
               )}
             </button>
           ))}
@@ -115,22 +115,22 @@ const FilterPanel = ({
       </div>
 
       {/* Cost Filter */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h4 className="text-md font-semibold text-gray-900 mb-4">Cost</h4>
+      <div className="bg-white p-6 rounded-xl shadow-md border-2 border-gray-300">
+        <h4 className="text-md font-bold text-gray-700 mb-4">Cost</h4>
         <div className="space-y-2">
           {costOptions.map((cost) => (
             <button
               key={cost.value}
               onClick={() => setSelectedCost(cost.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
+              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 font-medium ${
                 selectedCost === cost.value
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  ? 'bg-gray-700 text-white shadow-lg border-2 border-gray-700'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border-2 border-gray-300'
               }`}
             >
-              <span className="font-medium">{cost.label}</span>
+              <span>{cost.label}</span>
               {selectedCost === cost.value && (
-                <span className="ml-2">✓</span>
+                <span className="ml-2 font-bold">✓</span>
               )}
             </button>
           ))}
@@ -138,8 +138,8 @@ const FilterPanel = ({
       </div>
 
       {/* Rating Filter */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h4 className="text-md font-semibold text-gray-900 mb-4">Minimum Rating</h4>
+      <div className="bg-white p-6 rounded-xl shadow-md border-2 border-gray-300">
+        <h4 className="text-md font-bold text-gray-700 mb-4">Minimum Rating</h4>
         <div className="space-y-3">
           <input
             type="range"
@@ -148,11 +148,11 @@ const FilterPanel = ({
             step="0.5"
             value={minRating}
             onChange={(e) => setMinRating(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-gray-700"
           />
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">Any rating</span>
-            <span className="font-bold text-gray-900 bg-yellow-100 px-3 py-1 rounded-full">
+            <span className="text-gray-600 font-medium">Any rating</span>
+            <span className="font-bold text-gray-700 bg-gray-100 px-3 py-1 rounded-full border-2 border-gray-300">
               ★ {minRating.toFixed(1)}+
             </span>
           </div>
@@ -161,48 +161,48 @@ const FilterPanel = ({
 
       {/* Active Filters Summary */}
       {hasActiveFilters && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-blue-900 mb-3">Active Filters</h4>
+        <div className="bg-gray-100 border-2 border-gray-700 rounded-xl p-4">
+          <h4 className="text-sm font-bold text-gray-700 mb-3">Active Filters</h4>
           <div className="space-y-2">
             {selectedCategory !== 'all' && (
-              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg">
-                <span className="text-sm text-blue-700">{selectedCategory}</span>
+              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border-2 border-gray-300">
+                <span className="text-sm text-gray-700 font-bold">{selectedCategory}</span>
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-gray-700 hover:text-gray-600"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             )}
             {selectedOS !== 'all' && (
-              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg">
-                <span className="text-sm text-blue-700 capitalize">{selectedOS}</span>
+              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border-2 border-gray-300">
+                <span className="text-sm text-gray-700 capitalize font-bold">{selectedOS}</span>
                 <button
                   onClick={() => setSelectedOS('all')}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-gray-700 hover:text-gray-600"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             )}
             {selectedCost !== 'all' && (
-              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg">
-                <span className="text-sm text-blue-700 capitalize">{selectedCost}</span>
+              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border-2 border-gray-300">
+                <span className="text-sm text-gray-700 capitalize font-bold">{selectedCost}</span>
                 <button
                   onClick={() => setSelectedCost('all')}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-gray-700 hover:text-gray-600"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             )}
             {minRating > 0 && (
-              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg">
-                <span className="text-sm text-blue-700">Rating ≥ {minRating.toFixed(1)}</span>
+              <div className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border-2 border-gray-300">
+                <span className="text-sm text-gray-700 font-bold">Rating ≥ {minRating.toFixed(1)}</span>
                 <button
                   onClick={() => setMinRating(0)}
-                  className="text-blue-500 hover:text-blue-700"
+                  className="text-gray-700 hover:text-gray-600"
                 >
                   <X className="w-4 h-4" />
                 </button>

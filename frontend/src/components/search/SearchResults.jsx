@@ -54,7 +54,7 @@ const SearchResults = ({ libraries, loading, viewMode = 'grid' }) => {
     <div className="space-y-6">
       {/* Comparison Bar */}
       {selectedForComparison.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl p-4 shadow-lg sticky top-4 z-10">
+        <div className="bg-gradient-to-r from-rose-400 via-orange-380 to-amber-300 text-white rounded-xl p-4 shadow-lg sticky top-4 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <GitCompare className="w-6 h-6" />

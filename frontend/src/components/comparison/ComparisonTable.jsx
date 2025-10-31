@@ -4,44 +4,55 @@ import { CheckCircle, XCircle, ExternalLink, Star } from 'lucide-react';
 const ComparisonTable = ({ libraries }) => {
   if (!libraries || libraries.length < 2) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-8 text-center">
+      <div className="bg-white rounded-xl shadow-md p-8 text-center border border-orange-200">
         <p className="text-gray-600">Please select at least 2 libraries to compare</p>
       </div>
     );
   }
 
+  // Dynamic grid columns based on number of libraries
+  const getGridCols = () => {
+    switch(libraries.length) {
+      case 2: return 'grid-cols-3';
+      case 3: return 'grid-cols-4';
+      case 4: return 'grid-cols-5';
+      case 5: return 'grid-cols-6';
+      default: return 'grid-cols-6';
+    }
+  };
+
   const ComparisonRow = ({ label, icon, values, type = 'text' }) => {
     return (
-      <div className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors">
-        <div className={`grid gap-4 py-4 px-6 ${libraries.length === 2 ? 'grid-cols-3' : 'grid-cols-4'}`}>
-          <div className="flex items-center gap-2 font-medium text-gray-700">
-            {icon && <span className="text-blue-500">{icon}</span>}
+      <div className="border-b border-orange-100 last:border-b-0 hover:bg-gradient-to-r hover:from-rose-50 hover:to-orange-50 transition-all">
+        <div className={`grid gap-4 py-4 px-6 ${getGridCols()}`}>
+          <div className="flex items-center gap-2 font-semibold text-gray-800">
+            {icon && <span className="text-orange-600">{icon}</span>}
             {label}
           </div>
           {values.map((value, index) => (
             <div key={index} className="text-gray-900 flex items-center">
               {type === 'boolean' ? (
                 value ? (
-                  <div className="flex items-center gap-2 text-green-600">
+                  <div className="flex items-center gap-2 text-emerald-600">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">Yes</span>
+                    <span className="text-sm font-semibold">Yes</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 text-red-500">
                     <XCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">No</span>
+                    <span className="text-sm font-semibold">No</span>
                   </div>
                 )
               ) : type === 'badge' ? (
                 <div className="flex flex-wrap gap-2">
                   {Array.isArray(value) ? (
                     value.map((item, i) => (
-                      <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm capitalize">
+                      <span key={i} className="px-2 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded text-sm capitalize font-medium border border-orange-200">
                         {item}
                       </span>
                     ))
                   ) : (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm capitalize">
+                    <span className="px-2 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded text-sm capitalize font-medium border border-orange-200">
                       {value}
                     </span>
                   )}
@@ -51,7 +62,7 @@ const ComparisonTable = ({ libraries }) => {
                   {Array.isArray(value) && value.length > 0 ? (
                     value.slice(0, 5).map((item, i) => (
                       <li key={i} className="text-sm text-gray-700 flex items-start">
-                        <span className="text-blue-500 mr-2">•</span>
+                        <span className="text-orange-500 mr-2">•</span>
                         {item}
                       </li>
                     ))
@@ -64,8 +75,8 @@ const ComparisonTable = ({ libraries }) => {
                 </ul>
               ) : type === 'rating' ? (
                 <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                  <span className="font-semibold text-lg">{value || 'N/A'}</span>
+                  <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  <span className="font-bold text-lg">{value || 'N/A'}</span>
                   <span className="text-gray-500 text-sm">/ 5.0</span>
                 </div>
               ) : type === 'link' ? (
@@ -74,7 +85,7 @@ const ComparisonTable = ({ libraries }) => {
                     href={value} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-600 flex items-center gap-1 text-sm font-medium transition-colors"
+                    className="text-orange-600 hover:text-orange-700 flex items-center gap-1 text-sm font-semibold transition-colors"
                   >
                     Visit <ExternalLink className="w-3 h-3" />
                   </a>
@@ -82,17 +93,17 @@ const ComparisonTable = ({ libraries }) => {
                   <span className="text-gray-400 italic text-sm">Not available</span>
                 )
               ) : type === 'cost' ? (
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
                   value?.toLowerCase() === 'free' 
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
                     : value?.toLowerCase() === 'paid'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-yellow-100 text-yellow-700'
+                    ? 'bg-rose-100 text-rose-700 border border-rose-300'
+                    : 'bg-amber-100 text-amber-700 border border-amber-300'
                 }`}>
                   {value || 'N/A'}
                 </span>
               ) : (
-                <span className="text-sm">{value || 'N/A'}</span>
+                <span className="text-sm font-medium">{value || 'N/A'}</span>
               )}
             </div>
           ))}
@@ -102,7 +113,7 @@ const ComparisonTable = ({ libraries }) => {
   };
 
   const SectionHeader = ({ title, icon }) => (
-    <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+    <div className="px-6 py-4 bg-gradient-to-r from-rose-100 via-orange-100 to-amber-100 border-b-2 border-orange-300">
       <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
         {icon}
         {title}
@@ -111,7 +122,7 @@ const ComparisonTable = ({ libraries }) => {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-orange-200">
       {/* Basic Information */}
       <SectionHeader title="Basic Information" icon="📋" />
       <ComparisonRow

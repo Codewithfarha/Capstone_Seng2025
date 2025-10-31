@@ -31,7 +31,6 @@ const SearchBar = () => {
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         <input
           type="text"
-          placeholder="Search libraries... (Try: 'recat', 'djago', 'expr')"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full pl-12 pr-24 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -56,15 +55,6 @@ const SearchBar = () => {
         </div>
       </div>
 
-      {/* Fuzzy Search Indicator */}
-      {searchTerm && searchTerm.length >= 2 && (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
-            🔍 Fuzzy Search Active
-          </span>
-          <span className="text-gray-500">Finding results even with typos</span>
-        </div>
-      )}
 
       {showFilters && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
@@ -102,26 +92,8 @@ const SearchBar = () => {
         </div>
       )}
 
-      {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 pt-2 border-t">
-          <span className="text-sm text-gray-600">Active filters:</span>
-          {searchTerm && (
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-              Search: {searchTerm}
-            </span>
-          )}
-          {selectedCategory !== 'all' && (
-            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
-              {selectedCategory}
-            </span>
-          )}
-          {selectedPlatform !== 'all' && (
-            <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm capitalize">
-              {selectedPlatform}
-            </span>
-          )}
-        </div>
-      )}
+    
+      
     </div>
   );
 };
