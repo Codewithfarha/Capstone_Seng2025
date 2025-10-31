@@ -6,7 +6,6 @@ import Loading from '../components/layout/Loading';
 import { 
   ArrowLeft, 
   Package, 
-  Calendar, 
   Download, 
   DollarSign, 
   Code, 
@@ -140,13 +139,7 @@ const LibraryDetailPage = () => {
             {/* Quick Stats */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Stats</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <InfoCard
-                  icon={<Calendar className="w-5 h-5" />}
-                  label="Version"
-                  value={library.version}
-                  color="text-blue-500"
-                />
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <InfoCard
                   icon={<Download className="w-5 h-5" />}
                   label="Size"
