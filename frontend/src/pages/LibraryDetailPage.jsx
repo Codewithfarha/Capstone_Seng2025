@@ -34,49 +34,55 @@ const LibraryDetailPage = () => {
   
   if (!library) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Library Not Found</h2>
-        <p className="text-gray-600 mb-6">The library you're looking for doesn't exist.</p>
-        <Link 
-          to="/search" 
-          className="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Search
-        </Link>
+      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 flex items-center justify-center py-16">
+        <div className="container mx-auto px-4 text-center">
+          <div className="bg-white rounded-2xl shadow-xl p-12 max-w-lg mx-auto border border-orange-200">
+            <div className="bg-gradient-to-br from-orange-100 to-amber-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-10 h-10 text-orange-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Library Not Found</h2>
+            <p className="text-gray-600 mb-8 text-lg">The library you're looking for doesn't exist.</p>
+            <Link 
+              to="/search" 
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white px-8 py-4 rounded-lg hover:shadow-xl transition-all font-semibold"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back to Search
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
   const InfoCard = ({ icon, label, value, color = 'text-gray-600' }) => (
-    <div className="bg-gray-50 p-4 rounded-lg">
+    <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
       <div className="flex items-center gap-2 mb-2">
         <div className={color}>{icon}</div>
-        <span className="text-sm text-gray-500 font-medium">{label}</span>
+        <span className="text-sm text-gray-600 font-medium">{label}</span>
       </div>
-      <div className="text-lg font-semibold text-gray-900">{value}</div>
+      <div className="text-lg font-bold text-gray-900">{value}</div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-8">
       <div className="container mx-auto px-4">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 mb-6 transition-colors font-medium bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
 
         {/* Header Section */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <div className="bg-white rounded-xl shadow-xl p-8 mb-6 border border-orange-200">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-start gap-4 mb-4">
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 rounded-xl">
+                <div className="bg-gradient-to-br from-rose-500 via-orange-500 to-amber-500 p-4 rounded-xl shadow-lg">
                   <Package className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -87,19 +93,19 @@ const LibraryDetailPage = () => {
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium capitalize">
+                <span className="px-3 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded-full text-sm font-semibold capitalize border border-orange-300">
                   {library.category}
                 </span>
                 {library.platforms?.map((platform, index) => (
                   <span 
                     key={index} 
-                    className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium capitalize"
+                    className="px-3 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 rounded-full text-sm font-semibold capitalize border border-emerald-300"
                   >
                     {platform}
                   </span>
                 ))}
                 {library.license && (
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                  <span className="px-3 py-1 bg-gradient-to-r from-fuchsia-100 to-pink-100 text-fuchsia-700 rounded-full text-sm font-semibold border border-fuchsia-300">
                     {library.license}
                   </span>
                 )}
@@ -113,7 +119,7 @@ const LibraryDetailPage = () => {
                   href={library.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white px-6 py-3 rounded-lg hover:shadow-xl transition-all font-semibold"
                 >
                   <ExternalLink className="w-4 h-4" />
                   Visit Website
@@ -124,7 +130,7 @@ const LibraryDetailPage = () => {
                   href={library.repository}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900 transition-colors font-medium"
+                  className="flex items-center justify-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-900 transition-colors font-semibold"
                 >
                   <GitBranch className="w-4 h-4" />
                   Repository
@@ -138,41 +144,41 @@ const LibraryDetailPage = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Stats */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="bg-white rounded-xl shadow-xl p-6 border border-orange-200">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Stats</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <InfoCard
                   icon={<Calendar className="w-5 h-5" />}
                   label="Version"
                   value={library.version}
-                  color="text-blue-500"
+                  color="text-rose-500"
                 />
                 <InfoCard
                   icon={<Download className="w-5 h-5" />}
                   label="Size"
                   value={library.size || 'N/A'}
-                  color="text-green-500"
+                  color="text-emerald-500"
                 />
                 <InfoCard
                   icon={<DollarSign className="w-5 h-5" />}
                   label="Cost"
                   value={library.cost}
-                  color="text-purple-500"
+                  color="text-fuchsia-500"
                 />
                 <InfoCard
                   icon={<Star className="w-5 h-5" />}
                   label="Rating"
                   value={library.rating ? `${library.rating}/5` : 'N/A'}
-                  color="text-yellow-500"
+                  color="text-amber-500"
                 />
               </div>
             </div>
 
             {/* Code Examples */}
             {library.codeExamples && library.codeExamples.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="bg-white rounded-xl shadow-xl p-6 border border-orange-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <Code className="w-6 h-6" />
+                  <Code className="w-6 h-6 text-orange-600" />
                   Code Examples
                 </h2>
                 {library.codeExamples.map((example, index) => (
@@ -185,13 +191,13 @@ const LibraryDetailPage = () => {
 
             {/* Features */}
             {library.features && library.features.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="bg-white rounded-xl shadow-xl p-6 border border-orange-200">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Features</h2>
                 <ul className="space-y-3">
                   {library.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
+                    <li key={index} className="flex items-start gap-3 bg-gradient-to-r from-rose-50 to-orange-50 p-3 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700 font-medium">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -203,14 +209,14 @@ const LibraryDetailPage = () => {
           <div className="space-y-6">
             {/* Dependencies */}
             {library.dependencies && library.dependencies.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="bg-white rounded-xl shadow-xl p-6 border border-orange-200">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5" />
+                  <Package className="w-5 h-5 text-orange-600" />
                   Dependencies
                 </h2>
                 <ul className="space-y-2">
                   {library.dependencies.map((dep, index) => (
-                    <li key={index} className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                    <li key={index} className="text-sm text-gray-700 bg-gradient-to-r from-orange-50 to-amber-50 px-3 py-2 rounded-lg font-medium border border-orange-200">
                       {dep}
                     </li>
                   ))}
@@ -219,14 +225,18 @@ const LibraryDetailPage = () => {
             )}
 
             {/* Platform Support */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="bg-white rounded-xl shadow-xl p-6 border border-orange-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Platform Support</h2>
               <div className="space-y-2">
                 {['windows', 'macos', 'linux'].map((platform) => (
-                  <div key={platform} className="flex items-center justify-between py-2">
-                    <span className="text-gray-700 capitalize">{platform}</span>
+                  <div key={platform} className={`flex items-center justify-between py-3 px-3 rounded-lg ${
+                    library.platforms?.includes(platform) 
+                      ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200' 
+                      : 'bg-gray-50'
+                  }`}>
+                    <span className="text-gray-700 capitalize font-medium">{platform}</span>
                     {library.platforms?.includes(platform) ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-emerald-500" />
                     ) : (
                       <XCircle className="w-5 h-5 text-gray-300" />
                     )}
@@ -236,28 +246,28 @@ const LibraryDetailPage = () => {
             </div>
 
             {/* Additional Info */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="bg-white rounded-xl shadow-xl p-6 border border-orange-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Additional Info</h2>
               <div className="space-y-3 text-sm">
                 {library.lastUpdated && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Last Updated</span>
-                    <span className="text-gray-900 font-medium">{library.lastUpdated}</span>
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-medium">Last Updated</span>
+                    <span className="text-gray-900 font-bold">{library.lastUpdated}</span>
                   </div>
                 )}
                 {library.maintainers && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Maintainers</span>
-                    <span className="text-gray-900 font-medium flex items-center gap-1">
+                  <div className="flex justify-between py-2 border-b border-gray-200">
+                    <span className="text-gray-600 font-medium">Maintainers</span>
+                    <span className="text-gray-900 font-bold flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       {library.maintainers}
                     </span>
                   </div>
                 )}
                 {library.downloads && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Downloads</span>
-                    <span className="text-gray-900 font-medium">{library.downloads}</span>
+                  <div className="flex justify-between py-2">
+                    <span className="text-gray-600 font-medium">Downloads</span>
+                    <span className="text-gray-900 font-bold">{library.downloads}</span>
                   </div>
                 )}
               </div>

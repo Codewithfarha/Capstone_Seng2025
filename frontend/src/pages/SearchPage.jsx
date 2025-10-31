@@ -3,7 +3,7 @@ import { useLibrary } from '../context/LibraryContext';
 import SearchBar from '../components/search/SearchBar';
 import FilterPanel from '../components/search/FilterPanel';
 import SearchResults from '../components/search/SearchResults';
-import { Filter, Grid, List } from 'lucide-react';
+import { Filter, Grid, List, Search } from 'lucide-react';
 
 const SearchPage = () => {
   const { libraries, loading } = useLibrary();
@@ -12,7 +12,7 @@ const SearchPage = () => {
   const [selectedCost, setSelectedCost] = useState('all');
   const [minRating, setMinRating] = useState(0);
   const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
 
   const clearFilters = () => {
     setSelectedCategory('all');
@@ -31,12 +31,23 @@ const SearchPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Search Libraries</h1>
-        <p className="text-gray-600 mb-8">
-          Discover from {libraries.length} libraries across multiple platforms
-        </p>
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 p-3 rounded-xl shadow-lg">
+              <Search className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-5xl font-bold text-gray-900 mb-3">
+            Search 
+            <span className="bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 bg-clip-text text-transparent"> Libraries</span>
+          </h1>
+          <p className="text-xl text-gray-700">
+            Discover from <span className="font-bold text-orange-600">{libraries.length}</span> libraries across multiple platforms
+          </p>
+        </div>
         
         <div className="mb-6">
           <SearchBar />
@@ -46,14 +57,14 @@ const SearchPage = () => {
         <div className="flex gap-4 mb-6">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white rounded-lg hover:shadow-lg transition-all font-medium"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide' : 'Show'} Filters
           </button>
           <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white rounded-lg hover:shadow-lg transition-all font-medium"
           >
             {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
             {viewMode === 'grid' ? 'List' : 'Grid'} View
