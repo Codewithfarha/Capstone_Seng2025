@@ -18,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const libraryRoutes = require('./routes/libraries');
 const searchRoutes = require('./routes/search');
 const authRoutes = require('./routes/auth');
+const externalRoutes = require('./routes/external');
 
 // Health check endpoint - BEFORE other routes
 app.get('/api/health', (req, res) => {
@@ -41,7 +42,8 @@ app.get('/', (req, res) => {
       search: '/api/search',
       searchFilters: '/api/search/filters',
       searchAutocomplete: '/api/search/autocomplete',
-      auth: '/api/auth'
+      auth: '/api/auth',
+      external: '/api/external'  
     }
   });
 });
@@ -50,6 +52,7 @@ app.get('/', (req, res) => {
 app.use('/api/libraries', libraryRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/external', externalRoutes); 
 
 // 404 handler - MUST be after all routes
 app.use((req, res) => {
@@ -62,7 +65,8 @@ app.use((req, res) => {
       health: '/api/health',
       libraries: '/api/libraries',
       search: '/api/search',
-      auth: '/api/auth'
+      auth: '/api/auth',
+      external: '/api/external' 
     }
   });
 });
@@ -82,6 +86,7 @@ app.listen(PORT, () => {
   console.log(`📍 API available at http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📚 Libraries: http://localhost:${PORT}/api/libraries`);
+  console.log(`🌐 External: http://localhost:${PORT}/api/external`); 
 });
 
 module.exports = app;
