@@ -32,6 +32,9 @@ const SearchResults = ({ libraries, loading, viewMode = 'grid' }) => {
       return;
     }
     
+    // Store libraries in sessionStorage for ComparePage to access
+    sessionStorage.setItem('compareLibraries', JSON.stringify(selectedForComparison));
+    
     const ids = selectedForComparison.map(lib => lib.id).join(',');
     navigate(`/compare?libs=${ids}`);
   };
@@ -52,7 +55,7 @@ const SearchResults = ({ libraries, loading, viewMode = 'grid' }) => {
 
   return (
     <div className="space-y-6">
-      {/* Comparison Bar */}
+      {/* Comparison Bar - Original Design */}
       {selectedForComparison.length > 0 && (
         <div className="bg-gradient-to-r from-rose-400 via-orange-380 to-amber-300 text-white rounded-xl p-4 shadow-lg sticky top-4 z-10">
           <div className="flex items-center justify-between">
