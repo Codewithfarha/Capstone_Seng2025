@@ -134,20 +134,21 @@ const LibraryInfoModal = ({ library, isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Code Examples - Support BOTH old (codeExample) and new (codeExamples) formats */}
+          {/* Code Examples - ✅ FIXED: Now uses correct language */}
           {(() => {
             let examples = [];
             
-            // NEW FORMAT: codeExamples array
+            // NEW FORMAT: codeExamples array with language
             if (library.codeExamples && Array.isArray(library.codeExamples) && library.codeExamples.length > 0) {
               examples = library.codeExamples;
             }
-            // OLD FORMAT: codeExample string - convert to array
+            // OLD FORMAT: Single codeExample string with codeExampleLanguage
             else if (library.codeExample && typeof library.codeExample === 'string') {
               examples = [{
                 title: 'Code Example',
                 code: library.codeExample,
-                language: 'javascript'
+                // ✅ FIXED: Use codeExampleLanguage from library data or fall back to language or platform
+                language: library.codeExampleLanguage || library.language || 'javascript'
               }];
             }
             
@@ -162,7 +163,7 @@ const LibraryInfoModal = ({ library, isOpen, onClose }) => {
                     <CodeExample
                       key={index}
                       code={example.code}
-                      language={example.language || 'javascript'}
+                      language={example.language || library.codeExampleLanguage || library.language || 'javascript'}
                       title={example.title}
                     />
                   ))}
@@ -220,9 +221,15 @@ const LibraryInfoModal = ({ library, isOpen, onClose }) => {
                 </div>
               )}
               {library.size && (
-                <div className="flex justify-between py-2">
+                <div className="flex justify-between py-2 border-b border-gray-200">
                   <span className="text-gray-600">Size</span>
                   <span className="font-semibold text-gray-900">{library.size}</span>
+                </div>
+              )}
+              {library.language && (
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">Language</span>
+                  <span className="font-semibold text-gray-900">{library.language}</span>
                 </div>
               )}
             </div>
