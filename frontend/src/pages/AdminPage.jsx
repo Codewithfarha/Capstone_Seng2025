@@ -1,8 +1,9 @@
+
 import React from 'react';
-import AdminPanel from '../components/admin/AdminPanel';
+import AdminDashboard from '../components/admin/AdminDashboard';
 
 const AdminPage = () => {
-  return <AdminPanel />;
+  return <AdminDashboard />;
 };
 
 export default AdminPage;
