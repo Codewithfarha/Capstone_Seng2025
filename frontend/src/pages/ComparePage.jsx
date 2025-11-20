@@ -3,28 +3,101 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useLibrary } from '../context/LibraryContext';
 import ComparisonTable from '../components/comparison/ComparisonTable';
 import Loading from '../components/layout/Loading';
-import { ArrowLeft, GitCompare, Package, AlertCircle } from 'lucide-react';
+import { ArrowLeft, GitCompare, Package, AlertCircle, Star, Download, GitBranch } from 'lucide-react';
 
 const ComparePage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { allLibraries, loading } = useLibrary();
   const [libraries, setLibraries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const libIds = searchParams.get('libs');
-    if (libIds && allLibraries.length > 0) {
-      const ids = libIds.split(',').map(id => id.trim());
+    if (!libIds) {
+      setIsLoading(false);
+      return;
+    }
+
+    const ids = libIds.split(',').map(id => id.trim());
+    
+    // Try to get libraries from sessionStorage first (for external libs)
+    const storedLibs = sessionStorage.getItem('compareLibraries');
+    if (storedLibs) {
+      try {
+        const parsedLibs = JSON.parse(storedLibs);
+        const matchedLibs = ids
+          .map(id => parsedLibs.find(lib => lib.id === id))
+          .filter(Boolean);
+        
+        if (matchedLibs.length > 0) {
+          console.log('✅ Loaded libraries from sessionStorage:', matchedLibs.map(l => l.name));
+          setLibraries(matchedLibs);
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Error parsing stored libraries:', error);
+      }
+    }
+
+    // Fallback to context (for Firebase libs)
+    if (allLibraries.length > 0) {
       const foundLibs = ids
         .map(id => allLibraries.find(lib => lib.id?.toString() === id))
         .filter(Boolean);
       
-      console.log('🔍 Comparing libraries:', foundLibs.map(l => l.name));
+      console.log('✅ Loaded libraries from context:', foundLibs.map(l => l?.name || 'Unknown'));
       setLibraries(foundLibs);
     }
+    
+    setIsLoading(false);
   }, [searchParams, allLibraries]);
 
-  if (loading) return <Loading />;
+  // ✅ Helper function to safely get numeric value
+  const getNumericValue = (value) => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const parsed = parseInt(value.replace(/\D/g, ''));
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
+  // ✅ Helper to format numbers
+  const formatNumber = (num) => {
+    const value = getNumericValue(num);
+    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+    return value.toLocaleString();
+  };
+
+  // ✅ Safe comparison helpers
+  const getHighestRated = () => {
+    return libraries.reduce((prev, current) => {
+      const prevRating = prev.rating || 0;
+      const currentRating = current.rating || 0;
+      return prevRating > currentRating ? prev : current;
+    }, libraries[0]);
+  };
+
+  const getMostStars = () => {
+    return libraries.reduce((prev, current) => {
+      const prevStars = getNumericValue(prev.stars);
+      const currentStars = getNumericValue(current.stars);
+      return prevStars > currentStars ? prev : current;
+    }, libraries[0]);
+  };
+
+  const getMostDownloads = () => {
+    return libraries.reduce((prev, current) => {
+      const prevDownloads = getNumericValue(prev.downloads);
+      const currentDownloads = getNumericValue(current.downloads);
+      return prevDownloads > currentDownloads ? prev : current;
+    }, libraries[0]);
+  };
+
+  if (loading || isLoading) return <Loading />;
 
   if (libraries.length < 2) {
     return (
@@ -48,6 +121,10 @@ const ComparePage = () => {
       </div>
     );
   }
+
+  const highestRated = getHighestRated();
+  const mostStars = getMostStars();
+  const mostDownloads = getMostDownloads();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-8">
@@ -89,12 +166,17 @@ const ComparePage = () => {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-1">{lib.name}</h3>
                   <p className="text-sm text-gray-600 mb-2 font-medium">{lib.category}</p>
+                  {lib.source && lib.source !== 'firebase' && (
+                    <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded mb-2">
+                      {lib.source.toUpperCase()}
+                    </span>
+                  )}
                   {lib.rating && (
-                    <div className="text-amber-500 font-bold mb-3">
-                      ⭐ {lib.rating}
+                    <div className="text-amber-500 font-bold mt-2 flex items-center justify-center gap-1">
+                      <Star className="w-4 h-4 fill-amber-500" />
+                      {lib.rating}
                     </div>
                   )}
-                  
                 </div>
               </div>
             ))}
@@ -110,29 +192,81 @@ const ComparePage = () => {
             📊 Quick Analysis
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Highest Rated */}
             <div className="bg-white rounded-lg p-5 border border-rose-200 shadow-md">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Highest Rated</p>
-              <p className="text-xl font-bold text-rose-600">
-                {libraries.reduce((prev, current) => 
-                  (prev.rating || 0) > (current.rating || 0) ? prev : current
-                ).name}
+              <div className="flex items-center gap-2 mb-3">
+                <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                <p className="text-sm text-gray-600 font-medium">Highest Rated</p>
+              </div>
+              <p className="text-xl font-bold text-rose-600 mb-2">
+                {highestRated.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                ⭐ {highestRated.rating || 'N/A'}/5.0
               </p>
             </div>
+
+            {/* Most Stars */}
             <div className="bg-white rounded-lg p-5 border border-orange-200 shadow-md">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Most Stars</p>
-              <p className="text-xl font-bold text-orange-600">
-                {libraries.reduce((prev, current) => 
-                  (prev.stars || 0) > (current.stars || 0) ? prev : current
-                ).name}
+              <div className="flex items-center gap-2 mb-3">
+                <GitBranch className="w-5 h-5 text-orange-500" />
+                <p className="text-sm text-gray-600 font-medium">Most Stars</p>
+              </div>
+              <p className="text-xl font-bold text-orange-600 mb-2">
+                {mostStars.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                ⭐ {formatNumber(mostStars.stars)} stars
               </p>
             </div>
+
+            {/* Most Downloads */}
             <div className="bg-white rounded-lg p-5 border border-amber-200 shadow-md">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Most Downloads</p>
-              <p className="text-xl font-bold text-amber-600">
-                {libraries.reduce((prev, current) => 
-                  (prev.downloads || 0) > (current.downloads || 0) ? prev : current
-                ).name}
+              <div className="flex items-center gap-2 mb-3">
+                <Download className="w-5 h-5 text-amber-600" />
+                <p className="text-sm text-gray-600 font-medium">Most Downloads</p>
+              </div>
+              <p className="text-xl font-bold text-amber-600 mb-2">
+                {mostDownloads.name}
               </p>
+              <p className="text-sm text-gray-500">
+                ⬇️ {formatNumber(mostDownloads.downloads)} downloads
+              </p>
+            </div>
+          </div>
+
+          {/* Additional Metrics */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Cross-Platform Support */}
+            <div className="bg-white rounded-lg p-4 border border-blue-200">
+              <p className="text-sm text-gray-600 font-medium mb-2">Cross-Platform Support</p>
+              <div className="space-y-2">
+                {libraries.map(lib => (
+                  <div key={lib.id} className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">{lib.name}</span>
+                    <span className="text-sm text-gray-600">
+                      {lib.platforms?.length || 0}/3 platforms
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Source Rank */}
+            <div className="bg-white rounded-lg p-4 border border-purple-200">
+              <p className="text-sm text-gray-600 font-medium mb-2">Source Rank (Higher is Better)</p>
+              <div className="space-y-2">
+                {libraries
+                  .sort((a, b) => (b.sourceRank || 0) - (a.sourceRank || 0))
+                  .map(lib => (
+                    <div key={lib.id} className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">{lib.name}</span>
+                      <span className="text-sm font-bold text-purple-600">
+                        {lib.sourceRank || 'N/A'}
+                      </span>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         </div>
