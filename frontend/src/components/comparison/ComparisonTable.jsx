@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, XCircle, ExternalLink, Star } from 'lucide-react';
+import { CheckCircle, XCircle, ExternalLink, Star, Download as DownloadIcon, GitBranch } from 'lucide-react';
 
 const ComparisonTable = ({ libraries }) => {
   if (!libraries || libraries.length < 2) {
@@ -9,6 +9,25 @@ const ComparisonTable = ({ libraries }) => {
       </div>
     );
   }
+
+  // ✅ Helper to format numbers
+  const formatNumber = (num) => {
+    if (typeof num === 'number') {
+      if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+      if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+      return num.toLocaleString();
+    }
+    if (typeof num === 'string') {
+      const parsed = parseInt(num.replace(/\D/g, ''));
+      if (!isNaN(parsed)) {
+        if (parsed >= 1000000) return `${(parsed / 1000000).toFixed(1)}M`;
+        if (parsed >= 1000) return `${(parsed / 1000).toFixed(1)}K`;
+        return parsed.toLocaleString();
+      }
+      return num;
+    }
+    return 'N/A';
+  };
 
   // Dynamic grid columns based on number of libraries
   const getGridCols = () => {
@@ -53,7 +72,7 @@ const ComparisonTable = ({ libraries }) => {
                     ))
                   ) : (
                     <span className="px-2 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded text-sm capitalize font-medium border border-orange-200">
-                      {value}
+                      {value || 'N/A'}
                     </span>
                   )}
                 </div>
@@ -77,7 +96,7 @@ const ComparisonTable = ({ libraries }) => {
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
                   <span className="font-bold text-lg">{value || 'N/A'}</span>
-                  <span className="text-gray-500 text-sm">/ 5.0</span>
+                  {value && <span className="text-gray-500 text-sm">/ 5.0</span>}
                 </div>
               ) : type === 'link' ? (
                 value ? (
@@ -100,8 +119,10 @@ const ComparisonTable = ({ libraries }) => {
                     ? 'bg-rose-100 text-rose-700 border border-rose-300'
                     : 'bg-amber-100 text-amber-700 border border-amber-300'
                 }`}>
-                  {value || 'N/A'}
+                  {value || 'Free'}
                 </span>
+              ) : type === 'number' ? (
+                <span className="text-sm font-bold text-blue-600">{formatNumber(value)}</span>
               ) : (
                 <span className="text-sm font-medium">{value || 'N/A'}</span>
               )}
@@ -139,6 +160,11 @@ const ComparisonTable = ({ libraries }) => {
         type="badge"
       />
       <ComparisonRow
+        label="Language"
+        values={libraries.map(lib => lib.language)}
+        type="badge"
+      />
+      <ComparisonRow
         label="License"
         values={libraries.map(lib => lib.license)}
         type="badge"
@@ -167,21 +193,53 @@ const ComparisonTable = ({ libraries }) => {
         type="boolean"
       />
 
-      {/* Pricing & Statistics */}
-      <SectionHeader title="Pricing & Statistics" icon="💰" />
-      <ComparisonRow
-        label="Cost"
-        values={libraries.map(lib => lib.cost)}
-        type="cost"
-      />
+      {/* Statistics & Metrics */}
+      <SectionHeader title="Statistics & Metrics" icon="📊" />
       <ComparisonRow
         label="Rating"
         values={libraries.map(lib => lib.rating)}
         type="rating"
       />
       <ComparisonRow
+        label="Stars"
+        icon={<Star className="w-4 h-4" />}
+        values={libraries.map(lib => lib.stars)}
+        type="number"
+      />
+      <ComparisonRow
+        label="Forks"
+        icon={<GitBranch className="w-4 h-4" />}
+        values={libraries.map(lib => lib.forks)}
+        type="number"
+      />
+      <ComparisonRow
+        label="Watchers"
+        values={libraries.map(lib => lib.watchers)}
+        type="number"
+      />
+      <ComparisonRow
         label="Downloads"
+        icon={<DownloadIcon className="w-4 h-4" />}
         values={libraries.map(lib => lib.downloads)}
+        type="number"
+      />
+      <ComparisonRow
+        label="Dependents"
+        values={libraries.map(lib => lib.dependents)}
+        type="number"
+      />
+      <ComparisonRow
+        label="Source Rank"
+        values={libraries.map(lib => lib.sourceRank)}
+        type="number"
+      />
+
+      {/* Pricing & Other Info */}
+      <SectionHeader title="Pricing & Release Info" icon="💰" />
+      <ComparisonRow
+        label="Cost"
+        values={libraries.map(lib => lib.cost)}
+        type="cost"
       />
       <ComparisonRow
         label="Size"
@@ -189,7 +247,11 @@ const ComparisonTable = ({ libraries }) => {
       />
       <ComparisonRow
         label="Last Updated"
-        values={libraries.map(lib => lib.lastUpdated)}
+        values={libraries.map(lib => lib.latest_release_published_at || lib.lastUpdated)}
+      />
+      <ComparisonRow
+        label="Latest Stable Release"
+        values={libraries.map(lib => lib.latest_stable_release)}
       />
       <ComparisonRow
         label="Maintainers"
@@ -205,23 +267,45 @@ const ComparisonTable = ({ libraries }) => {
       />
 
       {/* Key Features */}
-      <SectionHeader title="Key Features" icon="✨" />
+      {libraries.some(lib => lib.features && lib.features.length > 0) && (
+        <>
+          <SectionHeader title="Key Features" icon="✨" />
+          <ComparisonRow
+            label="Features"
+            values={libraries.map(lib => lib.features || [])}
+            type="list"
+          />
+        </>
+      )}
+
+      {/* Tags/Keywords */}
+      <SectionHeader title="Tags & Keywords" icon="🏷️" />
       <ComparisonRow
-        label="Features"
-        values={libraries.map(lib => lib.features || [])}
-        type="list"
+        label="Tags"
+        values={libraries.map(lib => lib.tags || lib.keywords || [])}
+        type="badge"
       />
 
       {/* Links */}
       <SectionHeader title="Links & Resources" icon="🔗" />
       <ComparisonRow
-        label="Website"
-        values={libraries.map(lib => lib.website)}
+        label="Homepage"
+        values={libraries.map(lib => lib.homepage || lib.website)}
         type="link"
       />
       <ComparisonRow
         label="Repository"
         values={libraries.map(lib => lib.repository)}
+        type="link"
+      />
+      <ComparisonRow
+        label="Documentation"
+        values={libraries.map(lib => lib.documentation)}
+        type="link"
+      />
+      <ComparisonRow
+        label="Package Manager"
+        values={libraries.map(lib => lib.package_manager_url)}
         type="link"
       />
     </div>
