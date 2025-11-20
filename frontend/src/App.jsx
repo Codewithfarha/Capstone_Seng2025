@@ -19,6 +19,7 @@ import LibraryDetailPage from './pages/LibraryDetailPage';
 import ComparePage from './pages/ComparePage';
 import StatsPage from './pages/StatsPage';
 import AdminPage from './pages/AdminPage';
+import UserProfilePage from './pages/UserProfilePage'; // NEW!
 
 // Check if user is authenticated
 const isAuthenticated = () => {
@@ -94,26 +95,16 @@ function App() {
                       <Route path="/" element={<HomePage />} />
                       <Route path="/search" element={<SearchPage />} />
                       <Route path="/libraries" element={<LibrariesPage />} />
-                      <Route path="/library/:id" element={<LibraryDetailPage />} />
+                      <Route path="/libraries/:id" element={<LibraryDetailPage />} />
                       <Route path="/compare" element={<ComparePage />} />
                       <Route path="/stats" element={<StatsPage />} />
+                      <Route path="/profile" element={<UserProfilePage />} /> {/* NEW ROUTE! */}
                       <Route 
                         path="/admin" 
                         element={
                           <AdminRoute>
                             <AdminPage />
                           </AdminRoute>
-                        } 
-                      />
-                      <Route 
-                        path="*" 
-                        element={
-                          <div className="container mx-auto px-4 py-20 text-center">
-                            <h1 className="text-4xl font-bold mb-4 text-gray-900">404 - Page Not Found</h1>
-                            <a href="/" className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 inline-block">
-                              Go Home
-                            </a>
-                          </div>
                         } 
                       />
                     </Routes>
