@@ -115,6 +115,21 @@ const Header = () => {
                       </p>
                     </div>
 
+                    {/* Profile Link - NEW! */}
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-rose-50 hover:to-orange-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-rose-100 to-orange-100 rounded-lg">
+                        <User size={16} className="text-rose-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">View Profile</p>
+                        <p className="text-xs text-gray-500">Manage your favorites</p>
+                      </div>
+                    </Link>
+
                     {/* Logout Link */}
                     <button
                       onClick={handleLogout}
@@ -193,6 +208,21 @@ const Header = () => {
                     {user.email}
                   </p>
                 </div>
+
+                {/* Mobile Profile Link - NEW! */}
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-rose-50 hover:to-orange-50 rounded-lg transition-colors mb-1"
+                >
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-rose-100 to-orange-100 rounded-lg">
+                    <User size={16} className="text-rose-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">View Profile</p>
+                    <p className="text-xs text-gray-500">Manage your favorites</p>
+                  </div>
+                </Link>
 
                 {/* Mobile Logout */}
                 <button
