@@ -83,7 +83,6 @@ function App() {
             } 
           />
 
-          {/* Protected Routes - Main App (With Header/Footer) */}
           <Route
             path="/*"
             element={
