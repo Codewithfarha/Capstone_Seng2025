@@ -15,11 +15,95 @@ const CodeExample = ({ code, language = 'javascript', title }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `example.${language}`;
+    
+    // Get file extension based on language
+    const extensions = {
+      'javascript': 'js',
+      'python': 'py',
+      'java': 'java',
+      'ruby': 'rb',
+      'php': 'php',
+      'go': 'go',
+      'rust': 'rs',
+      'typescript': 'ts',
+      'c': 'c',
+      'cpp': 'cpp',
+      'csharp': 'cs',
+      'swift': 'swift',
+      'kotlin': 'kt',
+      'bash': 'sh',
+      'shell': 'sh',
+      'html': 'html',
+      'css': 'css',
+      'json': 'json',
+      'yaml': 'yaml',
+      'xml': 'xml',
+      'sql': 'sql',
+      'r': 'r',
+      'perl': 'pl',
+      'elixir': 'ex',
+      'haskell': 'hs',
+      'dart': 'dart',
+      'lua': 'lua'
+    };
+    
+    const ext = extensions[language.toLowerCase()] || 'txt';
+    a.download = `example.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  // Get display name for language
+  const getLanguageName = (lang) => {
+    const languageNames = {
+      'javascript': 'JavaScript',
+      'js': 'JavaScript',
+      'python': 'Python',
+      'py': 'Python',
+      'java': 'Java',
+      'ruby': 'Ruby',
+      'rb': 'Ruby',
+      'php': 'PHP',
+      'go': 'Go',
+      'golang': 'Go',
+      'rust': 'Rust',
+      'rs': 'Rust',
+      'typescript': 'TypeScript',
+      'ts': 'TypeScript',
+      'c': 'C',
+      'cpp': 'C++',
+      'c++': 'C++',
+      'csharp': 'C#',
+      'cs': 'C#',
+      'swift': 'Swift',
+      'kotlin': 'Kotlin',
+      'kt': 'Kotlin',
+      'bash': 'Bash',
+      'shell': 'Shell',
+      'sh': 'Shell',
+      'html': 'HTML',
+      'css': 'CSS',
+      'json': 'JSON',
+      'yaml': 'YAML',
+      'yml': 'YAML',
+      'xml': 'XML',
+      'sql': 'SQL',
+      'r': 'R',
+      'perl': 'Perl',
+      'pl': 'Perl',
+      'elixir': 'Elixir',
+      'ex': 'Elixir',
+      'haskell': 'Haskell',
+      'hs': 'Haskell',
+      'dart': 'Dart',
+      'lua': 'Lua',
+      'clojure': 'Clojure',
+      'elm': 'Elm'
+    };
+    
+    return languageNames[lang?.toLowerCase()] || lang?.toUpperCase() || 'CODE';
   };
 
   return (
@@ -65,7 +149,7 @@ const CodeExample = ({ code, language = 'javascript', title }) => {
       {/* Footer */}
       <div className="bg-gray-800 px-4 py-2 border-t border-gray-700 flex justify-between items-center">
         <span className="text-gray-400 text-xs uppercase font-semibold">
-          {language}
+          {getLanguageName(language)}
         </span>
         <button
           onClick={handleCopy}
