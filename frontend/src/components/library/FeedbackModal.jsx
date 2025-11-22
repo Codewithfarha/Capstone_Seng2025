@@ -3,7 +3,7 @@ import { X, MessageSquare, Send } from 'lucide-react';
 import { db } from '../../services/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const FeedbackModal = ({ library, isOpen, onClose }) => {
+const FeedbackModal = ({ library, isOpen, onClose, onSubmitSuccess }) => {
   const [feedbackType, setFeedbackType] = useState('general');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -38,10 +38,14 @@ const FeedbackModal = ({ library, isOpen, onClose }) => {
         createdAt: serverTimestamp()
       });
 
-      alert('Feedback submitted successfully! Thank you for your input.');
       setMessage('');
       setFeedbackType('general');
       onClose();
+      
+      // Call the success callback to show toast
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      }
     } catch (error) {
       console.error('Error submitting feedback:', error);
       alert('Failed to submit feedback. Please try again.');
