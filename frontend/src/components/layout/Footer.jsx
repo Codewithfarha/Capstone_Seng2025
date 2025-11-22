@@ -34,9 +34,6 @@ const Footer = () => {
               libraries. Built for engineers, by engineers.
             </p>
             <div className="flex items-center gap-2 text-sm">
-              <span>Made with</span>
-              <Heart size={16} className="text-red-500 fill-red-500" />
-              <span>using React + Firebase</span>
             </div>
           </div>
 
@@ -121,11 +118,6 @@ const Footer = () => {
             © {currentYear} Library Finder. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm text-gray-400">
-            <span>100 Libraries</span>
-            <span>•</span>
-            <span>9 Categories</span>
-            <span>•</span>
-            <span>3 Platforms</span>
           </div>
         </div>
       </div>
