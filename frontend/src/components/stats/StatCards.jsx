@@ -24,9 +24,14 @@ const StatCards = ({ libraries }) => {
   ).length;
   const freePercentage = ((freeLibraries / totalLibraries) * 100).toFixed(1);
   
+  // FIXED: Handle both string and number types for downloads
   const totalDownloads = libraries.reduce((sum, lib) => {
-    const downloads = lib.downloads?.replace(/\D/g, '') || '0';
-    return sum + parseInt(downloads);
+    if (!lib.downloads) return sum;
+    // Handle both string and number types
+    const downloads = typeof lib.downloads === 'string' 
+      ? lib.downloads.replace(/\D/g, '') 
+      : lib.downloads.toString().replace(/\D/g, '');
+    return sum + parseInt(downloads || '0');
   }, 0);
   
   const avgRating = libraries.reduce((sum, lib) => 
@@ -144,6 +149,36 @@ const StatCards = ({ libraries }) => {
     }
   ];
 
+  // FIXED: Handle cases where there might be no libraries
+  const getMostPopularCategory = () => {
+    if (categories.size === 0) return 'N/A';
+    return Array.from(categories).reduce((max, cat) => {
+      const count = libraries.filter(lib => lib.category === cat).length;
+      const maxCount = libraries.filter(lib => lib.category === max).length;
+      return count > maxCount ? cat : max;
+    }, Array.from(categories)[0]);
+  };
+
+  const mostPopularCategory = getMostPopularCategory();
+  const mostPopularCategoryCount = libraries.filter(lib => lib.category === mostPopularCategory).length;
+
+  // FIXED: Safe handling of highest rated and most downloaded
+  const highestRatedLib = libraries.length > 0 
+    ? libraries.reduce((max, lib) => (lib.rating || 0) > (max.rating || 0) ? lib : max, libraries[0])
+    : null;
+
+  const mostDownloadedLib = libraries.length > 0
+    ? libraries.reduce((max, lib) => {
+        const libDownloads = typeof lib.downloads === 'string' 
+          ? parseInt(lib.downloads.replace(/\D/g, '') || 0)
+          : parseInt(lib.downloads || 0);
+        const maxDownloads = typeof max.downloads === 'string'
+          ? parseInt(max.downloads.replace(/\D/g, '') || 0)
+          : parseInt(max.downloads || 0);
+        return libDownloads > maxDownloads ? lib : max;
+      }, libraries[0])
+    : null;
+
   return (
     <div>
       {/* Main Stats Grid */}
@@ -159,23 +194,12 @@ const StatCards = ({ libraries }) => {
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
           <h4 className="text-sm font-medium opacity-90 mb-2">Most Popular Category</h4>
           <p className="text-3xl font-bold mb-1">
-            {Array.from(categories).reduce((max, cat) => {
-              const count = libraries.filter(lib => lib.category === cat).length;
-              const maxCount = libraries.filter(lib => lib.category === max).length;
-              return count > maxCount ? cat : max;
-            }, Array.from(categories)[0]).charAt(0).toUpperCase() + 
-            Array.from(categories).reduce((max, cat) => {
-              const count = libraries.filter(lib => lib.category === cat).length;
-              const maxCount = libraries.filter(lib => lib.category === max).length;
-              return count > maxCount ? cat : max;
-            }, Array.from(categories)[0]).slice(1)}
+            {mostPopularCategory !== 'N/A' 
+              ? mostPopularCategory.charAt(0).toUpperCase() + mostPopularCategory.slice(1)
+              : 'N/A'}
           </p>
           <p className="text-sm opacity-75">
-            {libraries.filter(lib => lib.category === Array.from(categories).reduce((max, cat) => {
-              const count = libraries.filter(lib => lib.category === cat).length;
-              const maxCount = libraries.filter(lib => lib.category === max).length;
-              return count > maxCount ? cat : max;
-            }, Array.from(categories)[0])).length} libraries
+            {mostPopularCategoryCount} libraries
           </p>
         </div>
 
@@ -183,16 +207,12 @@ const StatCards = ({ libraries }) => {
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
           <h4 className="text-sm font-medium opacity-90 mb-2">Highest Rated Library</h4>
           <p className="text-2xl font-bold mb-1 truncate">
-            {libraries.reduce((max, lib) => 
-              (lib.rating || 0) > (max.rating || 0) ? lib : max
-            , libraries[0])?.name}
+            {highestRatedLib?.name || 'N/A'}
           </p>
           <div className="flex items-center gap-2">
             <Star className="w-4 h-4 fill-current" />
             <span className="text-lg font-semibold">
-              {libraries.reduce((max, lib) => 
-                (lib.rating || 0) > (max.rating || 0) ? lib : max
-              , libraries[0])?.rating || 'N/A'}
+              {highestRatedLib?.rating || 'N/A'}
             </span>
           </div>
         </div>
@@ -201,20 +221,16 @@ const StatCards = ({ libraries }) => {
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
           <h4 className="text-sm font-medium opacity-90 mb-2">Most Downloaded</h4>
           <p className="text-2xl font-bold mb-1 truncate">
-            {libraries.reduce((max, lib) => {
-              const libDownloads = parseInt(lib.downloads?.replace(/\D/g, '') || 0);
-              const maxDownloads = parseInt(max.downloads?.replace(/\D/g, '') || 0);
-              return libDownloads > maxDownloads ? lib : max;
-            }, libraries[0])?.name}
+            {mostDownloadedLib?.name || 'N/A'}
           </p>
           <div className="flex items-center gap-2">
             <Download className="w-4 h-4" />
             <span className="text-lg font-semibold">
-              {libraries.reduce((max, lib) => {
-                const libDownloads = parseInt(lib.downloads?.replace(/\D/g, '') || 0);
-                const maxDownloads = parseInt(max.downloads?.replace(/\D/g, '') || 0);
-                return libDownloads > maxDownloads ? lib : max;
-              }, libraries[0])?.downloads || 'N/A'}
+              {mostDownloadedLib?.downloads ? formatNumber(
+                typeof mostDownloadedLib.downloads === 'string'
+                  ? parseInt(mostDownloadedLib.downloads.replace(/\D/g, '') || 0)
+                  : mostDownloadedLib.downloads
+              ) : 'N/A'}
             </span>
           </div>
         </div>
@@ -224,3 +240,4 @@ const StatCards = ({ libraries }) => {
 };
 
 export default StatCards;
+

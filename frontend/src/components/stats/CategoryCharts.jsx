@@ -66,21 +66,22 @@ const CategoryCharts = ({ libraries }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* Pie Chart */}
+      {/* Pie Chart - Larger size with donut style for better visibility */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-6">Category Distribution</h3>
         <div className="flex flex-col md:flex-row items-center gap-8">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={500}>
+            <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
               <Pie
                 data={pieChartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
+                label={false}
+                outerRadius={180}
                 fill="#8884d8"
                 dataKey="value"
+                isAnimationActive={true}
               >
                 {pieChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -90,7 +91,7 @@ const CategoryCharts = ({ libraries }) => {
             </PieChart>
           </ResponsiveContainer>
 
-          {/* Legend */}
+          {/* Legend - Shows all info clearly without overlap */}
           <div className="flex-1 space-y-2">
             {barChartData.map((item, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
