@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SearchBar from '../components/search/SearchBar';
 import FilterPanel from '../components/search/FilterPanel';
 import SearchResults from '../components/search/SearchResults';
+import SearchHistory from '../components/search/SearchHistory';
 import { Filter, Grid, List, Search, Loader, RefreshCw, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 
@@ -52,6 +53,9 @@ const CATEGORY_TO_PLATFORM = {
 };
 
 const SearchPage = () => {
+  // Search History ref
+  const searchHistoryRef = useRef(null);
+
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedOS, setSelectedOS] = useState('all');
   const [minRating, setMinRating] = useState(0);
@@ -66,11 +70,12 @@ const SearchPage = () => {
   const [isUserSearch, setIsUserSearch] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [searchResultsPage, setSearchResultsPage] = useState(1);
+  const [currentSearchQuery, setCurrentSearchQuery] = useState(''); // For search history
 
   // Auto-load packages on page mount
   useEffect(() => {
     if (!hasSearched) {
-      console.log('🎯 Auto-loading initial packages from Libraries.io...');
+      console.log(' Auto-loading initial packages from Libraries.io...');
       loadInitialPackages();
     }
   }, []);
@@ -98,7 +103,7 @@ const SearchPage = () => {
   //  Fetch packages with platform/OS filter support
   const fetchLibrariesIO = async (searchTerm, page = 1) => {
     try {
-      console.log('🔍 Fetching packages for:', searchTerm, 'Page:', page);
+      console.log(' Fetching packages for:', searchTerm, 'Page:', page);
       
       const params = {
         query: searchTerm,
@@ -125,12 +130,12 @@ const SearchPage = () => {
         results = results.filter(lib => 
           lib.platforms && lib.platforms.includes(selectedOS)
         );
-        console.log('🖥️ After OS filter:', results.length, 'packages');
+        console.log(' After OS filter:', results.length, 'packages');
       }
       
       return results;
     } catch (error) {
-      console.error(' Error fetching packages:', error.message);
+      console.error('Error fetching packages:', error.message);
       return [];
     }
   };
@@ -142,6 +147,7 @@ const SearchPage = () => {
     setHasSearched(true);
     setIsUserSearch(false);
     setUserSearchQuery('');
+    setCurrentSearchQuery('');
     setSearchResultsPage(1);
     
     try {
@@ -156,7 +162,7 @@ const SearchPage = () => {
       const allPackages = results.flat();
       const uniquePackages = deduplicatePackages(allPackages);
       
-      console.log('Initial load complete:', uniquePackages.length, 'unique packages');
+      console.log(' Initial load complete:', uniquePackages.length, 'unique packages');
       setLibraries(uniquePackages);
       setCurrentTermIndex(termsToLoad);
     } catch (error) {
@@ -169,12 +175,12 @@ const SearchPage = () => {
   // Load more packages (for browsing mode)
   const loadMorePackages = async () => {
     if (currentTermIndex >= POPULAR_TERMS.length) {
-      console.log('No more terms to load');
+      console.log(' No more terms to load');
       alert('All available packages loaded!');
       return;
     }
 
-    console.log(' Loading more packages... (starting from index', currentTermIndex, ')');
+    console.log('Loading more packages... (starting from index', currentTermIndex, ')');
     setLoadMoreLoading(true);
     
     try {
@@ -189,7 +195,7 @@ const SearchPage = () => {
       
       // Flatten results
       const newPackages = results.flat();
-      console.log(' Fetched', newPackages.length, 'new packages');
+      console.log('Fetched', newPackages.length, 'new packages');
       
       // Combine with existing and deduplicate
       const allPackages = [...libraries, ...newPackages];
@@ -201,7 +207,7 @@ const SearchPage = () => {
       setLibraries(uniquePackages);
       setCurrentTermIndex(endIndex);
     } catch (error) {
-      console.error('Error loading more:', error);
+      console.error(' Error loading more:', error);
     } finally {
       setLoadMoreLoading(false);
     }
@@ -219,7 +225,7 @@ const SearchPage = () => {
       // Fetch the NEXT page of results (page 2, 3, 4, etc.)
       const newResults = await fetchLibrariesIO(userSearchQuery, nextPage);
       
-      console.log('Fetched', newResults.length, 'results from page', nextPage);
+      console.log(' Fetched', newResults.length, 'results from page', nextPage);
       
       if (newResults.length > 0) {
         // Combine with existing and deduplicate
@@ -270,9 +276,16 @@ const SearchPage = () => {
       setCurrentTermIndex(0);
       setIsUserSearch(false);
       setUserSearchQuery('');
+      setCurrentSearchQuery('');
       setSearchResultsPage(1);
       loadInitialPackages();
       return;
+    }
+    
+    //  Add to search history when user clicks Search button
+    setCurrentSearchQuery(query.trim());
+    if (searchHistoryRef.current) {
+      searchHistoryRef.current.addToRecent(query.trim());
     }
     
     setLoading(true);
@@ -284,9 +297,9 @@ const SearchPage = () => {
     try {
       const results = await fetchLibrariesIO(query);
       setLibraries(results);
-      console.log(' User search complete:', results.length, 'results');
+      console.log('User search complete:', results.length, 'results');
     } catch (error) {
-      console.error('Error in user search:', error);
+      console.error(' Error in user search:', error);
       setLibraries([]);
     } finally {
       setLoading(false);
@@ -311,7 +324,7 @@ const SearchPage = () => {
     selectedOS
   });
 
-  //  Only filter by rating client-side (category and OS are handled server-side now)
+  // Only filter by rating client-side (category and OS are handled server-side now)
   const filteredLibraries = libraries.filter(lib => {
     const ratingMatch = !lib.rating || (lib.rating >= minRating);
     return ratingMatch;
@@ -348,7 +361,7 @@ const SearchPage = () => {
         </div>
 
         {/* Controls */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-4 mb-6 flex-wrap">
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 text-white rounded-lg hover:shadow-lg transition-all font-medium"
@@ -364,6 +377,13 @@ const SearchPage = () => {
             {viewMode === 'grid' ? 'List' : 'Grid'} View
           </button>
           
+          {/* Search History Component */}
+          <SearchHistory 
+            ref={searchHistoryRef}
+            onSearchSelect={searchExternal}
+            currentSearch={currentSearchQuery}
+          />
+          
           {/* Refresh Button */}
           <button
             onClick={() => {
@@ -371,6 +391,7 @@ const SearchPage = () => {
               setCurrentTermIndex(0);
               setIsUserSearch(false);
               setUserSearchQuery('');
+              setCurrentSearchQuery('');
               setSearchResultsPage(1);
               clearFilters();
               loadInitialPackages();
@@ -441,7 +462,12 @@ const SearchPage = () => {
             {/* No Results Message */}
             {!loading && libraries.length === 0 && hasSearched && (
               <div className="text-center py-12">
+                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8 text-orange-600" />
                 </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">No Libraries Found</h3>
+                <p className="text-gray-600">Try adjusting your filters or search terms</p>
+              </div>
             )}
           </div>
         </div>
