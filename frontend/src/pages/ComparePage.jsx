@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useLibrary } from '../context/LibraryContext';
 import ComparisonTable from '../components/comparison/ComparisonTable';
 import Loading from '../components/layout/Loading';
-import { ArrowLeft, GitCompare, Package, AlertCircle, Star, Download, GitBranch, FileDown, CheckCircle, X } from 'lucide-react';
+import { ArrowLeft, GitCompare, Package, AlertCircle, Star, Download, GitBranch, FileDown, CheckCircle, X, Shield, AlertTriangle, Clock } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -102,6 +102,23 @@ const ComparePage = () => {
     }, libraries[0]);
   };
 
+  // ✅ Get most secure library
+  const getMostSecure = () => {
+    return libraries.reduce((prev, current) => {
+      const prevVulns = prev.githubSecurity?.totalAlerts || 0;
+      const currentVulns = current.githubSecurity?.totalAlerts || 0;
+      const prevHasConcerns = prev.securityStatus?.hasSecurityConcerns || false;
+      const currentHasConcerns = current.securityStatus?.hasSecurityConcerns || false;
+      
+      // Prefer packages without security concerns
+      if (!currentHasConcerns && prevHasConcerns) return current;
+      if (currentHasConcerns && !prevHasConcerns) return prev;
+      
+      // If both have or don't have concerns, prefer fewer vulnerabilities
+      return prevVulns < currentVulns ? prev : current;
+    }, libraries[0]);
+  };
+
   // 📄 PDF Export Function with Modal
   const handleExportClick = () => {
     setShowExportModal(true);
@@ -162,7 +179,7 @@ const ComparePage = () => {
         doc.setFont(undefined, 'normal');
         doc.setFontSize(9);
         doc.setTextColor(80);
-        doc.text(`Category: ${lib.category || 'N/A'}`, 20, yPosition + 5);
+        doc.text(`Language: ${lib.category || 'N/A'}`, 20, yPosition + 5);
         
         if (lib.rating) {
           doc.text(`Rating: ${lib.rating}/5.0 stars`, 20, yPosition + 10);
@@ -187,7 +204,7 @@ const ComparePage = () => {
 
       const basicTableData = [
         ['Library Name', ...libraries.map(lib => lib.name || 'N/A')],
-        ['Category', ...libraries.map(lib => lib.category || 'N/A')],
+        ['Language', ...libraries.map(lib => lib.category || 'N/A')],
         ['Version', ...libraries.map(lib => lib.version || 'N/A')],
         ['License', ...libraries.map(lib => lib.license || 'Unknown')],
         ['Cost', ...libraries.map(lib => lib.cost || 'Free')],
@@ -270,6 +287,51 @@ const ComparePage = () => {
         yPosition = 20;
       }
 
+      // Security Status Table
+      doc.setFontSize(16);
+      doc.setTextColor(...primaryOrange);
+      doc.text('Security Status', 14, yPosition);
+      yPosition += 5;
+
+      const securityTableData = [
+        ['Status', ...libraries.map(lib => lib.securityStatus?.status || 'Unknown')],
+        ['Vulnerabilities', ...libraries.map(lib => {
+          const total = lib.githubSecurity?.totalAlerts || 0;
+          return total > 0 ? `${total} found` : 'None';
+        })],
+        ['Security Concerns', ...libraries.map(lib => 
+          lib.securityStatus?.hasSecurityConcerns ? 'Yes' : 'No'
+        )],
+      ];
+
+      doc.autoTable({
+        startY: yPosition,
+        body: securityTableData,
+        theme: 'grid',
+        styles: { 
+          fontSize: 9,
+          cellPadding: 4,
+          lineWidth: 0.1
+        },
+        columnStyles: {
+          0: { 
+            fontStyle: 'bold', 
+            fillColor: lightOrange,
+            cellWidth: 40
+          }
+        },
+        alternateRowStyles: {
+          fillColor: [255, 250, 245]
+        }
+      });
+
+      yPosition = doc.lastAutoTable.finalY + 12;
+
+      if (yPosition > pageHeight - 60) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
       // Platform Support Table
       doc.setFontSize(16);
       doc.setTextColor(...primaryOrange);
@@ -321,11 +383,12 @@ const ComparePage = () => {
 
       // Quick Analysis Box
       doc.setFillColor(...accentRose);
-      doc.roundedRect(14, yPosition - 5, pageWidth - 28, 40, 3, 3, 'F');
+      doc.roundedRect(14, yPosition - 5, pageWidth - 28, 50, 3, 3, 'F');
 
       const highestRated = getHighestRated();
       const mostStars = getMostStars();
       const mostDownloads = getMostDownloads();
+      const mostSecure = getMostSecure();
 
       doc.setFontSize(14);
       doc.setTextColor(255);
@@ -349,6 +412,13 @@ const ComparePage = () => {
       doc.text('Most Downloads:', 20, yPosition);
       doc.setFont(undefined, 'normal');
       doc.text(`${mostDownloads.name} (${formatNumber(mostDownloads.downloads)} downloads)`, 65, yPosition);
+      yPosition += 8;
+
+      doc.setFont(undefined, 'bold');
+      doc.text('Most Secure:', 20, yPosition);
+      doc.setFont(undefined, 'normal');
+      const secureVulns = mostSecure.githubSecurity?.totalAlerts || 0;
+      doc.text(`${mostSecure.name} (${secureVulns} vulnerabilities)`, 65, yPosition);
 
       // Footer
       const pageCount = doc.internal.getNumberOfPages();
@@ -418,6 +488,7 @@ const ComparePage = () => {
   const highestRated = getHighestRated();
   const mostStars = getMostStars();
   const mostDownloads = getMostDownloads();
+  const mostSecure = getMostSecure();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 py-8">
@@ -442,7 +513,7 @@ const ComparePage = () => {
           </button>
         </div>
 
-        {/* Export Modal - Like Add to Favorites */}
+        {/* Export Modal */}
         {showExportModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fadeIn">
@@ -477,7 +548,7 @@ const ComparePage = () => {
 
                   {/* Library list */}
                   <div className="bg-gray-50 rounded-lg p-4 mb-6 max-h-40 overflow-y-auto">
-                    {libraries.map((lib, index) => (
+                    {libraries.map((lib) => (
                       <div key={lib.id} className="flex items-center gap-2 py-2">
                         <Package className="w-4 h-4 text-orange-500" />
                         <span className="text-sm font-medium text-gray-700">{lib.name}</span>
@@ -589,12 +660,118 @@ const ComparePage = () => {
         {/* Comparison Table */}
         <ComparisonTable libraries={libraries} />
 
+        {/* Security Comparison Section */}
+        <div className="mt-8 bg-white rounded-xl shadow-xl overflow-hidden border border-red-200">
+          <div className="bg-gradient-to-r from-red-50 via-orange-50 to-amber-50 p-6 border-b border-red-200">
+            <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Shield className="w-7 h-7 text-red-600" />
+              Security Comparison
+            </h3>
+            <p className="text-gray-600 mt-2">Security status and vulnerability assessment</p>
+          </div>
+
+          <div className={`grid ${libraries.length === 2 ? 'grid-cols-2' : libraries.length === 3 ? 'grid-cols-3' : 'grid-cols-4'} divide-x divide-gray-200`}>
+            {libraries.map((lib) => (
+              <div key={lib.id} className="p-6">
+                <h4 className="font-bold text-gray-900 mb-4 text-center">{lib.name}</h4>
+                
+                {/* Status Badge */}
+                <div className="text-center mb-4">
+                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                    lib.securityStatus?.hasSecurityConcerns 
+                      ? 'bg-red-100 text-red-800 border border-red-300' 
+                      : 'bg-green-100 text-green-800 border border-green-300'
+                  }`}>
+                    {lib.securityStatus?.status || 'Unknown'}
+                  </span>
+                </div>
+
+                {/* Security Warnings */}
+                {lib.securityStatus?.isDeprecated && (
+                  <div className="mb-3 p-2 bg-red-50 rounded border border-red-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <span className="text-sm font-bold text-red-900">Deprecated</span>
+                    </div>
+                    <p className="text-xs text-red-700">No longer maintained</p>
+                  </div>
+                )}
+
+                {lib.securityStatus?.isUnmaintained && !lib.securityStatus?.isDeprecated && (
+                  <div className="mb-3 p-2 bg-orange-50 rounded border border-orange-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertTriangle className="w-4 h-4 text-orange-600" />
+                      <span className="text-sm font-bold text-orange-900">Unmaintained</span>
+                    </div>
+                    <p className="text-xs text-orange-700">Not actively developed</p>
+                  </div>
+                )}
+
+                {lib.securityStatus?.isOutdated && !lib.securityStatus?.isDeprecated && !lib.securityStatus?.isUnmaintained && (
+                  <div className="mb-3 p-2 bg-yellow-50 rounded border border-yellow-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="w-4 h-4 text-yellow-600" />
+                      <span className="text-sm font-bold text-yellow-900">Outdated</span>
+                    </div>
+                    <p className="text-xs text-yellow-700">No updates in 2+ years</p>
+                  </div>
+                )}
+
+                {/* Vulnerabilities */}
+                {lib.githubSecurity && lib.githubSecurity.totalAlerts > 0 ? (
+                  <div className="space-y-2">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-red-600">{lib.githubSecurity.totalAlerts}</p>
+                      <p className="text-xs text-gray-600">Vulnerabilities</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-center">
+                      {lib.githubSecurity.vulnerabilities.critical > 0 && (
+                        <div className="bg-red-100 rounded p-2">
+                          <p className="text-lg font-bold text-red-800">{lib.githubSecurity.vulnerabilities.critical}</p>
+                          <p className="text-xs text-red-700">Critical</p>
+                        </div>
+                      )}
+                      {lib.githubSecurity.vulnerabilities.high > 0 && (
+                        <div className="bg-orange-100 rounded p-2">
+                          <p className="text-lg font-bold text-orange-800">{lib.githubSecurity.vulnerabilities.high}</p>
+                          <p className="text-xs text-orange-700">High</p>
+                        </div>
+                      )}
+                      {lib.githubSecurity.vulnerabilities.medium > 0 && (
+                        <div className="bg-yellow-100 rounded p-2">
+                          <p className="text-lg font-bold text-yellow-800">{lib.githubSecurity.vulnerabilities.medium}</p>
+                          <p className="text-xs text-yellow-700">Medium</p>
+                        </div>
+                      )}
+                      {lib.githubSecurity.vulnerabilities.low > 0 && (
+                        <div className="bg-blue-100 rounded p-2">
+                          <p className="text-lg font-bold text-blue-800">{lib.githubSecurity.vulnerabilities.low}</p>
+                          <p className="text-xs text-blue-700">Low</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                      <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-green-900">No Vulnerabilities</p>
+                      <p className="text-xs text-green-700 mt-1">Secure package</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Quick Analysis */}
         <div className="mt-8 bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 rounded-xl p-8 border-2 border-amber-300 shadow-lg">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             📊 Quick Analysis
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Highest Rated */}
             <div className="bg-white rounded-lg p-5 border border-rose-200 shadow-md">
               <div className="flex items-center gap-2 mb-3">
@@ -627,13 +804,27 @@ const ComparePage = () => {
             <div className="bg-white rounded-lg p-5 border border-amber-200 shadow-md">
               <div className="flex items-center gap-2 mb-3">
                 <Download className="w-5 h-5 text-amber-600" />
-                <p className="text-sm text-gray-600 font-medium">Most Downloads (Monthly)</p>
+                <p className="text-sm text-gray-600 font-medium">Most Downloads</p>
               </div>
               <p className="text-xl font-bold text-amber-600 mb-2">
                 {mostDownloads.name}
               </p>
               <p className="text-sm text-gray-500">
                 ⬇️ {formatNumber(mostDownloads.downloads)} downloads/month
+              </p>
+            </div>
+
+            {/* Most Secure */}
+            <div className="bg-white rounded-lg p-5 border border-green-200 shadow-md">
+              <div className="flex items-center gap-2 mb-3">
+                <Shield className="w-5 h-5 text-green-600" />
+                <p className="text-sm text-gray-600 font-medium">Most Secure</p>
+              </div>
+              <p className="text-xl font-bold text-green-600 mb-2">
+                {mostSecure.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                🛡️ {mostSecure.githubSecurity?.totalAlerts || 0} vulnerabilities
               </p>
             </div>
           </div>

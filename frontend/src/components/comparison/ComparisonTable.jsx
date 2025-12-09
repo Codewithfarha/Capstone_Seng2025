@@ -155,15 +155,11 @@ const ComparisonTable = ({ libraries }) => {
         values={libraries.map(lib => lib.version)}
       />
       <ComparisonRow
-        label="Category"
+        label="language"
         values={libraries.map(lib => lib.category)}
         type="badge"
       />
-      <ComparisonRow
-        label="Language"
-        values={libraries.map(lib => lib.language)}
-        type="badge"
-      />
+      
       <ComparisonRow
         label="License"
         values={libraries.map(lib => lib.license)}
