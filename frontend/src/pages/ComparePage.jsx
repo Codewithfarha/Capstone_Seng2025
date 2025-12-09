@@ -236,9 +236,9 @@ const ComparePage = () => {
 
       const metricsTableData = [
         ['Stars', ...libraries.map(lib => formatNumber(lib.stars) || 'N/A')],
-        ['Downloads', ...libraries.map(lib => formatNumber(lib.downloads) || 'N/A')],
+        ['Monthly Downloads', ...libraries.map(lib => formatNumber(lib.downloads) || 'N/A')],
         ['Forks', ...libraries.map(lib => formatNumber(lib.forks) || 'N/A')],
-        ['Rating', ...libraries.map(lib => lib.rating ? `${lib.rating}/5.0 stars` : 'N/A')],
+        ['Rating', ...libraries.map(lib => lib.rating ? `${lib.rating}/5.0` : 'N/A')],
         ['Source Rank', ...libraries.map(lib => lib.sourceRank || 'N/A')],
       ];
 
@@ -577,7 +577,7 @@ const ComparePage = () => {
                   {lib.rating && (
                     <div className="text-amber-500 font-bold mt-2 flex items-center justify-center gap-1">
                       <Star className="w-4 h-4 fill-amber-500" />
-                      {lib.rating}
+                      {lib.rating}/5
                     </div>
                   )}
                 </div>
@@ -627,13 +627,13 @@ const ComparePage = () => {
             <div className="bg-white rounded-lg p-5 border border-amber-200 shadow-md">
               <div className="flex items-center gap-2 mb-3">
                 <Download className="w-5 h-5 text-amber-600" />
-                <p className="text-sm text-gray-600 font-medium">Most Downloads</p>
+                <p className="text-sm text-gray-600 font-medium">Most Downloads (Monthly)</p>
               </div>
               <p className="text-xl font-bold text-amber-600 mb-2">
                 {mostDownloads.name}
               </p>
               <p className="text-sm text-gray-500">
-                ⬇️ {formatNumber(mostDownloads.downloads)} downloads
+                ⬇️ {formatNumber(mostDownloads.downloads)} downloads/month
               </p>
             </div>
           </div>
@@ -642,13 +642,13 @@ const ComparePage = () => {
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Cross-Platform Support */}
             <div className="bg-white rounded-lg p-4 border border-blue-200">
-              <p className="text-sm text-gray-600 font-medium mb-2">Cross-Platform Support</p>
+              <p className="text-sm text-gray-600 font-medium mb-2">Operating System Support</p>
               <div className="space-y-2">
                 {libraries.map(lib => (
                   <div key={lib.id} className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">{lib.name}</span>
                     <span className="text-sm text-gray-600">
-                      {lib.platforms?.length || 0}/3 platforms
+                      {lib.platforms?.length || 0}/3 OS
                     </span>
                   </div>
                 ))}
