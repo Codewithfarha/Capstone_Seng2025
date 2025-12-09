@@ -11,7 +11,7 @@ const FilterPanel = ({
   onClearFilters,
   showFilters = true
 }) => {
-  // ✅ UPDATED: Real categories from Libraries.io API
+  // Real categories from Libraries.io API
   const categories = [
     { value: 'all', label: 'All Languages', icon: '🌐' },
     { value: 'JavaScript', label: 'JavaScript', icon: '💛' },
@@ -67,7 +67,7 @@ const FilterPanel = ({
       <div className="bg-white p-6 rounded-xl shadow-md border-2 border-orange-200">
         <h4 className="text-md font-bold text-gray-900 mb-4 flex items-center gap-2">
           <span>💻</span>
-          <span>Language/Platform</span>
+          <span>Languages</span>
         </h4>
         <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
           {categories.map((category) => (
