@@ -34,32 +34,44 @@ const fuzzyMatch = (text, query) => {
 
 /**
  *  Get npm downloads with race condition to prevent blocking
+ *  FIXED: Increased timeout to 8s and added URL encoding for scoped packages
  */
 const getRealNPMDownloads = async (packageName) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // ✅ FIXED: 8 second timeout (was 3)
   
   try {
+    // FIXED: URL encode package name to handle @ and / characters (e.g., @vue/cli-plugin-eslint)
+    const encodedName = encodeURIComponent(packageName);
+    
     const response = await axios.get(
-      `https://api.npmjs.org/downloads/point/last-month/${packageName}`,
+      `https://api.npmjs.org/downloads/point/last-month/${encodedName}`,
       { 
         signal: controller.signal,
-        headers: { 'User-Agent': 'Mozilla/5.0' }
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        timeout: 8000 // ✅ FIXED: Added axios timeout as backup
       }
     );
     clearTimeout(timeoutId);
     const downloads = response.data.downloads || 0;
-    console.log(` npm: ${packageName} → ${downloads.toLocaleString()}`);
+    
+    if (downloads > 0) {
+      console.log(`✅ npm: ${packageName} → ${downloads.toLocaleString()}`);
+    } else {
+      console.log(`⚠️ npm returned 0 downloads for ${packageName}`);
+    }
+    
     return downloads;
   } catch (error) {
     clearTimeout(timeoutId);
-    console.log(`npm failed for ${packageName}`);
+    console.log(`❌ npm failed for ${packageName}: ${error.message}`);
     return 0;
   }
 };
 
 /**
  *  Get GitHub stats with timeout protection
+ *  FIXED: Increased timeout to 8 seconds
  */
 const getGitHubStats = async (repoUrl) => {
   if (!repoUrl || !repoUrl.includes('github.com')) return null;
@@ -71,7 +83,7 @@ const getGitHubStats = async (repoUrl) => {
   const cleanRepo = repo.replace(/\.git$/, '');
   
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000);
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // FIXED: 8 seconds (was 3)
   
   try {
     const response = await axios.get(
@@ -81,13 +93,14 @@ const getGitHubStats = async (repoUrl) => {
         headers: {
           'User-Agent': 'Mozilla/5.0',
           'Accept': 'application/vnd.github.v3+json'
-        }
+        },
+        timeout: 8000 // ✅ FIXED: Added axios timeout as backup
       }
     );
     clearTimeout(timeoutId);
     
     const data = response.data;
-    console.log(`GitHub: ${owner}/${cleanRepo} → ${data.stargazers_count}`);
+    console.log(`✅ GitHub: ${owner}/${cleanRepo} → ${data.stargazers_count} stars`);
     
     return {
       stars: data.stargazers_count || 0,
