@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Download, Code, GitCompare, Heart, MessageSquare, CheckCircle } from 'lucide-react';
+import { Star, Download, Code, GitCompare, Heart, MessageSquare, CheckCircle, AlertTriangle, AlertCircle, Clock } from 'lucide-react';
 import LibraryInfoModal from './LibraryInfoModal';
 import FeedbackModal from './FeedbackModal';
 import { db } from '../../services/firebase';
@@ -54,7 +54,6 @@ const LibraryCard = ({ library, onCompare, isSelected = false }) => {
     e.stopPropagation();
     if (onCompare) {
       onCompare(library);
-      // No toast for compare action
     }
   };
 
@@ -153,7 +152,7 @@ const LibraryCard = ({ library, onCompare, isSelected = false }) => {
 
   return (
     <>
-      {/* Cylindrical Popup - Animates from Bottom to Top at Center */}
+      {/* Cylindrical Popup */}
       {toast && (
         <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none px-4">
           <div 
@@ -166,7 +165,6 @@ const LibraryCard = ({ library, onCompare, isSelected = false }) => {
               animation: 'blowUpFromBottom 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
             }}
           >
-            {/* Gradient Border Effect */}
             <div
               style={{
                 position: 'absolute',
@@ -269,6 +267,32 @@ const LibraryCard = ({ library, onCompare, isSelected = false }) => {
         <p className="text-gray-700 text-sm mb-4 line-clamp-2 flex-grow leading-relaxed break-words overflow-hidden">
           {library.description}
         </p>
+
+        {/* ✅ SECURITY BADGES */}
+        {library.securityStatus?.hasSecurityConcerns && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {library.securityStatus.isDeprecated && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full border border-red-300">
+                <AlertTriangle className="w-3 h-3" />
+                Deprecated
+              </span>
+            )}
+            
+            {library.securityStatus.isUnmaintained && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full border border-orange-300">
+                <AlertCircle className="w-3 h-3" />
+                Unmaintained
+              </span>
+            )}
+            
+            {library.securityStatus.isOutdated && !library.securityStatus.isDeprecated && !library.securityStatus.isUnmaintained && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full border border-yellow-300">
+                <Clock className="w-3 h-3" />
+                Outdated
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 mb-4 overflow-hidden">
           {library.platforms?.slice(0, 3).map((platform, index) => (
