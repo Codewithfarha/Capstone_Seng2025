@@ -9,7 +9,11 @@ import {
   CheckCircle,
   XCircle,
   GitBranch,
-  DollarSign
+  DollarSign,
+  Shield,
+  AlertTriangle,
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import CodeExample from './CodeExample';
 
@@ -211,6 +215,264 @@ const LibraryInfoModal = ({ library, isOpen, onClose }) => {
             </div>
           )}
 
+          {/* ✅ SECURITY STATUS SECTION */}
+          {library.securityStatus && (
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <Shield className="w-6 h-6 text-gray-900" />
+                Security Status
+              </h3>
+              
+              <div className="bg-white p-4 rounded-lg border-2 border-gray-300">
+                {/* Status Badge */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-gray-700">Package Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    library.securityStatus.hasSecurityConcerns 
+                      ? 'bg-red-100 text-red-800 border border-red-300' 
+                      : 'bg-green-100 text-green-800 border border-green-300'
+                  }`}>
+                    {library.securityStatus.status || 'Active'}
+                  </span>
+                </div>
+                
+                {/* Deprecated Warning */}
+                {library.securityStatus.isDeprecated && (
+                  <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg mb-2 border border-red-200">
+                    <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-red-900 text-sm">Deprecated</p>
+                      <p className="text-red-700 text-sm">This package is no longer maintained. Consider using alternatives.</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Unmaintained Warning */}
+                {library.securityStatus.isUnmaintained && (
+                  <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg mb-2 border border-orange-200">
+                    <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-orange-900 text-sm">Unmaintained</p>
+                      <p className="text-orange-700 text-sm">This package is not actively maintained and may have security vulnerabilities.</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Outdated Warning */}
+                {library.securityStatus.isOutdated && !library.securityStatus.isDeprecated && !library.securityStatus.isUnmaintained && (
+                  <div className="flex items-start gap-2 p-3 bg-yellow-50 rounded-lg mb-2 border border-yellow-200">
+                    <Clock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-yellow-900 text-sm">Outdated</p>
+                      <p className="text-yellow-700 text-sm">No updates in 2+ years. May have unpatched vulnerabilities.</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Active & Healthy */}
+                {!library.securityStatus.hasSecurityConcerns && (
+                  <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-green-900 text-sm">Active & Maintained</p>
+                      <p className="text-green-700 text-sm">This package is actively maintained and regularly updated.</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Last Release Date */}
+                {library.securityStatus.lastReleaseDate && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Last Release:</span> {new Date(library.securityStatus.lastReleaseDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {/* ✅ GITHUB SECURITY VULNERABILITIES */}
+              {library.githubSecurity && library.githubSecurity.totalAlerts > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-300">
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Known Vulnerabilities (GitHub Security)
+                  </h4>
+                  
+                  {/* Vulnerability Summary */}
+                  <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">Total Vulnerabilities:</span>
+                      <span className="font-bold text-gray-900">{library.githubSecurity.totalAlerts}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">Open (Unfixed):</span>
+                      <span className={`font-bold ${library.githubSecurity.openAlerts > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                        {library.githubSecurity.openAlerts}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Fixed:</span>
+                      <span className="font-bold text-green-600">{library.githubSecurity.fixedAlerts}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Severity Breakdown */}
+                  {library.githubSecurity.vulnerabilities.total > 0 && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Severity Breakdown:</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {library.githubSecurity.vulnerabilities.critical > 0 && (
+                          <div className="bg-red-100 border border-red-300 rounded p-2 text-center">
+                            <div className="text-lg font-bold text-red-800">
+                              {library.githubSecurity.vulnerabilities.critical}
+                            </div>
+                            <div className="text-xs text-red-700">Critical</div>
+                          </div>
+                        )}
+                        
+                        {library.githubSecurity.vulnerabilities.high > 0 && (
+                          <div className="bg-orange-100 border border-orange-300 rounded p-2 text-center">
+                            <div className="text-lg font-bold text-orange-800">
+                              {library.githubSecurity.vulnerabilities.high}
+                            </div>
+                            <div className="text-xs text-orange-700">High</div>
+                          </div>
+                        )}
+                        
+                        {library.githubSecurity.vulnerabilities.medium > 0 && (
+                          <div className="bg-yellow-100 border border-yellow-300 rounded p-2 text-center">
+                            <div className="text-lg font-bold text-yellow-800">
+                              {library.githubSecurity.vulnerabilities.medium}
+                            </div>
+                            <div className="text-xs text-yellow-700">Medium</div>
+                          </div>
+                        )}
+                        
+                        {library.githubSecurity.vulnerabilities.low > 0 && (
+                          <div className="bg-blue-100 border border-blue-300 rounded p-2 text-center">
+                            <div className="text-lg font-bold text-blue-800">
+                              {library.githubSecurity.vulnerabilities.low}
+                            </div>
+                            <div className="text-xs text-blue-700">Low</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Individual Vulnerabilities */}
+                  {library.githubSecurity.alerts && library.githubSecurity.alerts.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Recent Vulnerabilities:</p>
+                      <div className="space-y-2">
+                        {library.githubSecurity.alerts.map((alert, index) => (
+                          <div 
+                            key={index}
+                            className={`p-3 rounded-lg border ${
+                              alert.state === 'open' 
+                                ? 'bg-red-50 border-red-200' 
+                                : 'bg-green-50 border-green-200'
+                            }`}
+                          >
+                            {/* Severity Badge */}
+                            <div className="flex items-start justify-between mb-2">
+                              <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
+                                alert.severity === 'critical' ? 'bg-red-600 text-white' :
+                                alert.severity === 'high' ? 'bg-orange-500 text-white' :
+                                alert.severity === 'medium' ? 'bg-yellow-500 text-white' :
+                                'bg-blue-500 text-white'
+                              }`}>
+                                {alert.severity}
+                              </span>
+                              
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                alert.state === 'open' 
+                                  ? 'bg-red-200 text-red-800' 
+                                  : 'bg-green-200 text-green-800'
+                              }`}>
+                                {alert.state === 'open' ? '🔓 Unfixed' : '✅ Fixed'}
+                              </span>
+                            </div>
+                            
+                            {/* Vulnerability Details */}
+                            <p className="font-semibold text-gray-900 text-sm mb-1">
+                              {alert.summary}
+                            </p>
+                            
+                            {alert.package && (
+                              <p className="text-xs text-gray-600 mb-1">
+                                <span className="font-medium">Package:</span> {alert.package}
+                              </p>
+                            )}
+                            
+                            {alert.vulnerableVersions && (
+                              <p className="text-xs text-gray-600 mb-1">
+                                <span className="font-medium">Vulnerable:</span> {alert.vulnerableVersions}
+                              </p>
+                            )}
+                            
+                            {alert.patchedVersions && (
+                              <p className="text-xs text-green-700 mb-1">
+                                <span className="font-medium">Fixed in:</span> {alert.patchedVersions}
+                              </p>
+                            )}
+                            
+                            {alert.url && (
+                              <a 
+                                href={alert.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 hover:underline mt-2 inline-block"
+                              >
+                                View on GitHub →
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Action Button */}
+                  {library.repository && (
+                    <a
+                      href={`${library.repository}/security`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+                    >
+                      <Shield className="w-4 h-4" />
+                      View Full Security Report on GitHub
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* If No Vulnerabilities Found */}
+              {library.githubSecurity && library.githubSecurity.totalAlerts === 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-300">
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="font-semibold text-green-900 text-sm">No Known Vulnerabilities</p>
+                        <p className="text-green-700 text-xs">
+                          GitHub Dependabot has not detected any security vulnerabilities in this repository.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Additional Info */}
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-3">Additional Information</h3>
@@ -230,65 +492,6 @@ const LibraryInfoModal = ({ library, isOpen, onClose }) => {
                         Pre-release
                       </span>
                     )}
-                  </span>
-                </div>
-              )}
-
-              {/* Last Updated - SMART DATE HANDLING */}
-              {library.lastUpdated && (
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-gray-600">Last Updated</span>
-                  <span className="font-semibold text-gray-900">
-                    {(() => {
-                      try {
-                        const dateStr = library.lastUpdated;
-                        const date = new Date(dateStr);
-                        const now = new Date();
-                        
-                        // Check if date is valid
-                        if (isNaN(date.getTime())) {
-                          console.warn(`⚠️ Invalid date for ${library.name}: ${dateStr}`);
-                          return 'Unknown';
-                        }
-                        
-                        // ✅ CHANGED: Allow dates up to 7 days in the future (for timezone issues)
-                        // GitHub might show dates slightly ahead due to server time differences
-                        const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-                        
-                        // ✅ CHANGED: Only flag dates MORE THAN 7 days in the future as suspicious
-                        if (date > sevenDaysFromNow) {
-                          console.warn(`⚠️ Suspicious future date for ${library.name}: ${dateStr}`);
-                          // If it's MORE than 1 year in the future, it's definitely wrong
-                          const oneYearFromNow = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-                          if (date > oneYearFromNow) {
-                            return 'Recently';
-                          }
-                          // If it's just a few weeks/months ahead, show with warning
-                          return (
-                            <span className="flex items-center gap-2">
-                              {date.toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                Verify date
-                              </span>
-                            </span>
-                          );
-                        }
-                        
-                        // ✅ CHANGED: Format date nicely for valid dates (including today/recent)
-                        return date.toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        });
-                      } catch (e) {
-                        console.error('Date parsing error:', e);
-                        return 'Unknown';
-                      }
-                    })()}
                   </span>
                 </div>
               )}
