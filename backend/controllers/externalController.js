@@ -38,7 +38,7 @@ const fuzzyMatch = (text, query) => {
  */
 const getRealNPMDownloads = async (packageName) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // ✅ FIXED: 8 second timeout (was 3)
+  const timeoutId = setTimeout(() => controller.abort(), 8000); //  FIXED: 8 second timeout (was 3)
   
   try {
     // FIXED: URL encode package name to handle @ and / characters (e.g., @vue/cli-plugin-eslint)
@@ -49,22 +49,22 @@ const getRealNPMDownloads = async (packageName) => {
       { 
         signal: controller.signal,
         headers: { 'User-Agent': 'Mozilla/5.0' },
-        timeout: 8000 // ✅ FIXED: Added axios timeout as backup
+        timeout: 8000 //  FIXED: Added axios timeout as backup
       }
     );
     clearTimeout(timeoutId);
     const downloads = response.data.downloads || 0;
     
     if (downloads > 0) {
-      console.log(`✅ npm: ${packageName} → ${downloads.toLocaleString()}`);
+      console.log(` npm: ${packageName} → ${downloads.toLocaleString()}`);
     } else {
-      console.log(`⚠️ npm returned 0 downloads for ${packageName}`);
+      console.log(` npm returned 0 downloads for ${packageName}`);
     }
     
     return downloads;
   } catch (error) {
     clearTimeout(timeoutId);
-    console.log(`❌ npm failed for ${packageName}: ${error.message}`);
+    console.log(` npm failed for ${packageName}: ${error.message}`);
     return 0;
   }
 };
@@ -94,13 +94,13 @@ const getGitHubStats = async (repoUrl) => {
           'User-Agent': 'Mozilla/5.0',
           'Accept': 'application/vnd.github.v3+json'
         },
-        timeout: 8000 // ✅ FIXED: Added axios timeout as backup
+        timeout: 8000 // FIXED: Added axios timeout as backup
       }
     );
     clearTimeout(timeoutId);
     
     const data = response.data;
-    console.log(`✅ GitHub: ${owner}/${cleanRepo} → ${data.stargazers_count} stars`);
+    console.log(`GitHub: ${owner}/${cleanRepo} → ${data.stargazers_count} stars`);
     
     return {
       stars: data.stargazers_count || 0,
@@ -114,6 +114,137 @@ const getGitHubStats = async (repoUrl) => {
   } catch (error) {
     clearTimeout(timeoutId);
     console.log(` GitHub failed for ${owner}/${cleanRepo}`);
+    return null;
+  }
+};
+
+/**
+ * Get vulnerabilities from OSV (Open Source Vulnerabilities) Database
+ * NO AUTHENTICATION REQUIRED - Free and unlimited
+ * Works for: npm, PyPI, Maven, RubyGems, Go, Cargo, Packagist, NuGet
+ */
+const getOSVVulnerabilities = async (packageName, ecosystem) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  
+  try {
+    // Map platform to OSV ecosystem
+    const osvEcosystem = {
+      'npm': 'npm',
+      'pypi': 'PyPI',
+      'maven': 'Maven',
+      'rubygems': 'RubyGems',
+      'go': 'Go',
+      'cargo': 'crates.io',
+      'packagist': 'Packagist',
+      'nuget': 'NuGet',
+      'pub': 'Pub',
+      'hex': 'Hex',
+      'cocoapods': 'CocoaPods'
+    }[ecosystem?.toLowerCase()] || 'npm';
+    
+    const response = await axios.post(
+      'https://api.osv.dev/v1/query',
+      {
+        package: {
+          name: packageName,
+          ecosystem: osvEcosystem
+        }
+      },
+      {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        },
+        timeout: 8000
+      }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    const vulns = response.data.vulns || [];
+    
+    // Count by severity
+    const counts = {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+      unknown: 0
+    };
+    
+    vulns.forEach(vuln => {
+      // OSV uses different severity formats, normalize them
+      const severityStr = JSON.stringify(vuln).toLowerCase();
+      
+      if (severityStr.includes('critical')) counts.critical++;
+      else if (severityStr.includes('high')) counts.high++;
+      else if (severityStr.includes('medium') || severityStr.includes('moderate')) counts.medium++;
+      else if (severityStr.includes('low')) counts.low++;
+      else counts.unknown++;
+    });
+    
+    const total = vulns.length;
+    
+    if (total > 0) {
+      console.log(`🛡️ OSV: ${packageName} → ${total} vulnerabilities`);
+    }
+    
+    return {
+      source: 'OSV',
+      vulnerabilities: {
+        critical: counts.critical,
+        high: counts.high,
+        medium: counts.medium,
+        low: counts.low,
+        total: total
+      },
+      totalAlerts: total,
+      openAlerts: total, // OSV doesn't track fixed status
+      fixedAlerts: 0,
+      alerts: vulns.slice(0, 5).map(vuln => ({
+        id: vuln.id,
+        severity: vuln.database_specific?.severity || 
+                 vuln.severity?.[0]?.type || 
+                 (counts.critical > 0 ? 'CRITICAL' : 
+                  counts.high > 0 ? 'HIGH' : 
+                  counts.medium > 0 ? 'MEDIUM' : 'LOW'),
+        summary: vuln.summary || vuln.details?.substring(0, 100) || 'Security vulnerability',
+        description: vuln.details,
+        package: packageName,
+        vulnerableVersions: vuln.affected?.[0]?.ranges?.[0]?.events
+          ?.map(e => {
+            if (e.introduced) return `>=${e.introduced}`;
+            if (e.fixed) return `<${e.fixed}`;
+            return null;
+          })
+          ?.filter(Boolean)
+          ?.join(', ') || 'See details',
+        patchedVersions: vuln.affected?.[0]?.ranges?.[0]?.events
+          ?.find(e => e.fixed)?.fixed || 'See advisory',
+        state: 'open',
+        url: vuln.references?.[0]?.url || `https://osv.dev/vulnerability/${vuln.id}`
+      }))
+    };
+    
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    // If no vulnerabilities found, OSV returns empty response or 404
+    if (error.response?.status === 404 || error.response?.data?.vulns?.length === 0) {
+      console.log(` OSV: ${packageName} → No vulnerabilities`);
+      return {
+        source: 'OSV',
+        vulnerabilities: { critical: 0, high: 0, medium: 0, low: 0, total: 0 },
+        totalAlerts: 0,
+        openAlerts: 0,
+        fixedAlerts: 0,
+        alerts: []
+      };
+    }
+    
+    console.log(` OSV check failed for ${packageName}: ${error.message}`);
     return null;
   }
 };
@@ -242,7 +373,7 @@ const searchLibrariesIO = async (query, limit = 20, platforms = null, page = 1) 
       params.platforms = platforms.join(',');
     }
 
-    console.log(` Searching: "${query}" | Page: ${page}`);
+    console.log(`🔍 Searching: "${query}" | Page: ${page}`);
 
     const response = await axios.get(`${LIBRARIES_IO_BASE_URL}/search`, {
       params,
@@ -257,8 +388,8 @@ const searchLibrariesIO = async (query, limit = 20, platforms = null, page = 1) 
         const platformInfo = getPlatformInfo(lib.platform);
         const osPlatforms = getOSPlatforms(lib.platform, lib.language);
         
-        // Parallel API calls (non-blocking)
-        const [npmResult, githubResult] = await Promise.allSettled([
+        // Parallel API calls (non-blocking) -  NOW WITH OSV SECURITY
+        const [npmResult, githubResult, securityResult] = await Promise.allSettled([
           // Only fetch npm data for npm packages
           lib.platform === 'npm' || lib.platform === 'NPM' 
             ? getRealNPMDownloads(lib.name) 
@@ -266,12 +397,15 @@ const searchLibrariesIO = async (query, limit = 20, platforms = null, page = 1) 
           // Fetch GitHub stats if repo exists
           lib.repository_url 
             ? getGitHubStats(lib.repository_url) 
-            : Promise.resolve(null)
+            : Promise.resolve(null),
+          //  NEW: Fetch OSV vulnerabilities (NO TOKEN NEEDED!)
+          getOSVVulnerabilities(lib.name, lib.platform)
         ]);
         
         // Extract values with fallbacks
         const realDownloads = npmResult.status === 'fulfilled' ? npmResult.value : (lib.downloads || 0);
         const githubStats = githubResult.status === 'fulfilled' ? githubResult.value : null;
+        const githubSecurity = securityResult.status === 'fulfilled' ? securityResult.value : null; // ✅ OSV Security
         const realStars = githubStats?.stars || lib.stars || 0;
         const realForks = githubStats?.forks || lib.forks || 0;
         
@@ -282,6 +416,18 @@ const searchLibrariesIO = async (query, limit = 20, platforms = null, page = 1) 
           realDownloads,
           realForks
         );
+        
+        // SECURITY STATUS - Calculate based on Libraries.io data
+        const isOutdated = (() => {
+          if (!lib.latest_release_published_at && !lib.latest_stable_release_published_at) return false;
+          const lastUpdate = new Date(lib.latest_release_published_at || lib.latest_stable_release_published_at);
+          const twoYearsAgo = new Date();
+          twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+          return lastUpdate < twoYearsAgo;
+        })();
+        
+        const isDeprecated = lib.status === 'Deprecated';
+        const isUnmaintained = lib.status === 'Unmaintained';
         
         return {
           id: generateLibraryId(lib.name, lib.platform),
@@ -306,6 +452,19 @@ const searchLibrariesIO = async (query, limit = 20, platforms = null, page = 1) 
           //  ENHANCED RATING
           sourceRank: lib.rank || 0,
           rating: enhancedRating,
+          
+          // ✅ SECURITY STATUS
+          securityStatus: {
+            status: lib.status || 'Active',
+            isDeprecated: isDeprecated,
+            isUnmaintained: isUnmaintained,
+            isOutdated: isOutdated,
+            hasSecurityConcerns: isDeprecated || isUnmaintained || isOutdated,
+            lastReleaseDate: lib.latest_release_published_at || lib.latest_stable_release_published_at
+          },
+          
+          // NEW: OSV SECURITY DATA (NO TOKEN NEEDED!)
+          githubSecurity: githubSecurity,
           
           // Links
           homepage: lib.homepage || lib.repository_url || `https://libraries.io/${lib.platform}/${lib.name}`,
