@@ -6,12 +6,13 @@ A platform to search, compare, and discover software libraries.
 
 ## Features
 
-- Search libraries with fuzzy matching
-- Compare up to 4 libraries side-by-side
+- Search libraries with fuzzy matching and stats 
+- Compare up to 4 libraries side-by-side and properties
 - View detailed info with code examples
 - User authentication (Email & Google)
 - Submit feedback and reviews
 - Fully responsive design
+
 
 ## Tech Stack
 
@@ -59,11 +60,14 @@ REACT_APP_FIREBASE_PROJECT_ID=your-project-id
 ## Status
 
 ✅ Search & Filter  
-✅ Compare Libraries  
+✅ Compare Libraries , properties and Code examples  
 ✅ Authentication  
 ✅ Feedback System  
-🔄 Favorites (in progress)  
-📋 Admin Panel (planned)
+✅ Favorites  
+✅ Admin Panel 
+✅ Search History 
+✅ PDF Export 
+✅ Stats and Filtering of it
 
 ## Links
 
